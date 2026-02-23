@@ -1,0 +1,30 @@
+{
+  "id": "noir",
+  "name": "Noir",
+  "subtitle": "Near-black neutral · crisp contrast",
+  "emoji": "🎬",
+  "colors": {
+    "background": "#161616",
+    "text": "#D4D4D4",
+    "bold": "#F0F0F0",
+    "selection": "#303030",
+    "cursor": "#D4D4D4",
+    "cursorText": "#161616",
+    "black": "#333333",
+    "red": "#C07070",
+    "green": "#70A870",
+    "yellow": "#C0A860",
+    "blue": "#6888B8",
+    "magenta": "#A070A0",
+    "cyan": "#60A8A0",
+    "white": "#C0C0C0",
+    "brightBlack": "#555555",
+    "brightRed": "#DA8A8A",
+    "brightGreen": "#8AC28A",
+    "brightYellow": "#DAC27A",
+    "brightBlue": "#82A2D2",
+    "brightMagenta": "#BA8ABA",
+    "brightCyan": "#7AC2BA",
+    "brightWhite": "#DADADA"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "id": "seville",
+  "name": "Seville",
+  "subtitle": "Warm dark brown · golden citrus",
+  "emoji": "🍊",
+  "colors": {
+    "background": "#1E1812",
+    "text": "#D8CCBA",
+    "bold": "#F0E4CE",
+    "selection": "#3E2E1C",
+    "cursor": "#D8CCBA",
+    "cursorText": "#1E1812",
+    "black": "#3E3428",
+    "red": "#D07058",
+    "green": "#88A860",
+    "yellow": "#DCA038",
+    "blue": "#6888A0",
+    "magenta": "#B07080",
+    "cyan": "#60A890",
+    "white": "#CCC0AE",
+    "brightBlack": "#5E5448",
+    "brightRed": "#EA8A72",
+    "brightGreen": "#A2C27A",
+    "brightYellow": "#F6BA52",
+    "brightBlue": "#82A2BA",
+    "brightMagenta": "#CA8A9A",
+    "brightCyan": "#7AC2AA",
+    "brightWhite": "#E6DAC8"
+  }
+}

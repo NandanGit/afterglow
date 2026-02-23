@@ -1,0 +1,30 @@
+{
+  "id": "copper-mill",
+  "name": "Copper Mill",
+  "subtitle": "Industrial dark · copper and steel",
+  "emoji": "⚙️",
+  "colors": {
+    "background": "#1A1816",
+    "text": "#D0C8BC",
+    "bold": "#E8E0D2",
+    "selection": "#3A3028",
+    "cursor": "#D0C8BC",
+    "cursorText": "#1A1816",
+    "black": "#3A3430",
+    "red": "#C87868",
+    "green": "#80A870",
+    "yellow": "#CCA058",
+    "blue": "#6888A0",
+    "magenta": "#A87888",
+    "cyan": "#68A090",
+    "white": "#C4BEB0",
+    "brightBlack": "#5A5450",
+    "brightRed": "#E29282",
+    "brightGreen": "#9AC28A",
+    "brightYellow": "#E6BA72",
+    "brightBlue": "#82A2BA",
+    "brightMagenta": "#C292A2",
+    "brightCyan": "#82BAAA",
+    "brightWhite": "#DED8CA"
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "bundledThemes": [
+    {
+      "id": "understory",
+      "name": "Understory",
+      "subtitle": "Forest floor · warm moss · dappled light",
+      "emoji": "🌿"
+    },
+    {
+      "id": "void-orchid",
+      "name": "Void Orchid",
+      "subtitle": "Deep purple-black · amethyst accents",
+      "emoji": "🪻"
+    },
+    {
+      "id": "ember",
+      "name": "Ember",
+      "subtitle": "Near-black · amber and flame",
+      "emoji": "🔥"
+    },
+    {
+      "id": "arctic",
+      "name": "Arctic",
+      "subtitle": "Deep glacial blue · frost and ice",
+      "emoji": "🧊"
+    },
+    {
+      "id": "sakura-dusk",
+      "name": "Sakura Dusk",
+      "subtitle": "Warm gray-dark · cherry blossom tones",
+      "emoji": "🌸"
+    },
+    {
+      "id": "copper-mill",
+      "name": "Copper Mill",
+      "subtitle": "Industrial dark · copper and steel",
+      "emoji": "⚙️"
+    },
+    {
+      "id": "deep-ocean",
+      "name": "Deep Ocean",
+      "subtitle": "Dark teal-black · ocean depths",
+      "emoji": "🐋"
+    },
+    {
+      "id": "noir",
+      "name": "Noir",
+      "subtitle": "Near-black neutral · crisp contrast",
+      "emoji": "🎬"
+    },
+    {
+      "id": "desert-night",
+      "name": "Desert Night",
+      "subtitle": "Sandy dark · warm ochre tones",
+      "emoji": "🏜️"
+    },
+    {
+      "id": "tidal-pool",
+      "name": "Tidal Pool",
+      "subtitle": "Aquamarine dark · sandy warm accents",
+      "emoji": "🌊"
+    },
+    {
+      "id": "merlot",
+      "name": "Merlot",
+      "subtitle": "Deep wine-red · cream and berry",
+      "emoji": "🍷"
+    },
+    {
+      "id": "moss-garden",
+      "name": "Moss Garden",
+      "subtitle": "Olive-green dark · stone and earth",
+      "emoji": "🪴"
+    },
+    {
+      "id": "nebula",
+      "name": "Nebula",
+      "subtitle": "Deep indigo-violet · electric accents",
+      "emoji": "🔮"
+    },
+    {
+      "id": "slate-peak",
+      "name": "Slate Peak",
+      "subtitle": "Cool blue-gray · crisp steel",
+      "emoji": "🏔️"
+    },
+    {
+      "id": "seville",
+      "name": "Seville",
+      "subtitle": "Warm dark brown · golden citrus",
+      "emoji": "🍊"
+    },
+    {
+      "id": "moonstone",
+      "name": "Moonstone",
+      "subtitle": "Silver-blue dark · pearlescent cool",
+      "emoji": "🌙"
+    }
+  ],
+  "communityThemes": []
+}

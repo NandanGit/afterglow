@@ -1,0 +1,30 @@
+{
+  "id": "moonstone",
+  "name": "Moonstone",
+  "subtitle": "Silver-blue dark · pearlescent cool",
+  "emoji": "🌙",
+  "colors": {
+    "background": "#171920",
+    "text": "#CCD0DA",
+    "bold": "#E4E8F2",
+    "selection": "#242A38",
+    "cursor": "#CCD0DA",
+    "cursorText": "#171920",
+    "black": "#303640",
+    "red": "#C07880",
+    "green": "#78A888",
+    "yellow": "#B8A878",
+    "blue": "#7090C0",
+    "magenta": "#A078B0",
+    "cyan": "#60A8B8",
+    "white": "#BEC4CE",
+    "brightBlack": "#505860",
+    "brightRed": "#DA929A",
+    "brightGreen": "#92C2A2",
+    "brightYellow": "#D2C292",
+    "brightBlue": "#8AAADA",
+    "brightMagenta": "#BA92CA",
+    "brightCyan": "#7AC2D2",
+    "brightWhite": "#D8DEE8"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "id": "moss-garden",
+  "name": "Moss Garden",
+  "subtitle": "Olive-green dark · stone and earth",
+  "emoji": "🪴",
+  "colors": {
+    "background": "#181C16",
+    "text": "#CCD0C0",
+    "bold": "#E4E8D8",
+    "selection": "#2E3E24",
+    "cursor": "#CCD0C0",
+    "cursorText": "#181C16",
+    "black": "#363A32",
+    "red": "#C08068",
+    "green": "#88B060",
+    "yellow": "#C0A858",
+    "blue": "#6888A0",
+    "magenta": "#A07888",
+    "cyan": "#60A888",
+    "white": "#C4C8B8",
+    "brightBlack": "#565A52",
+    "brightRed": "#DA9A82",
+    "brightGreen": "#A2CA7A",
+    "brightYellow": "#DAC272",
+    "brightBlue": "#82A2BA",
+    "brightMagenta": "#BA92A2",
+    "brightCyan": "#7AC2A2",
+    "brightWhite": "#DEE2D2"
+  }
+}

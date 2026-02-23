@@ -1,0 +1,30 @@
+{
+  "id": "desert-night",
+  "name": "Desert Night",
+  "subtitle": "Sandy dark · warm ochre tones",
+  "emoji": "🏜️",
+  "colors": {
+    "background": "#1E1A14",
+    "text": "#D8CCBA",
+    "bold": "#F0E4D0",
+    "selection": "#3E3020",
+    "cursor": "#D8CCBA",
+    "cursorText": "#1E1A14",
+    "black": "#3E3428",
+    "red": "#D07868",
+    "green": "#90A860",
+    "yellow": "#D8A840",
+    "blue": "#7088A0",
+    "magenta": "#B07880",
+    "cyan": "#68A888",
+    "white": "#CCC0AE",
+    "brightBlack": "#5E5448",
+    "brightRed": "#EA9282",
+    "brightGreen": "#AAC27A",
+    "brightYellow": "#F2C25A",
+    "brightBlue": "#8AA2BA",
+    "brightMagenta": "#CA929A",
+    "brightCyan": "#82C2A2",
+    "brightWhite": "#E6DAC8"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "id": "void-orchid",
+  "name": "Void Orchid",
+  "subtitle": "Deep purple-black · amethyst accents",
+  "emoji": "🪻",
+  "colors": {
+    "background": "#1A1520",
+    "text": "#D0C8DC",
+    "bold": "#E8E0F0",
+    "selection": "#3A2850",
+    "cursor": "#D0C8DC",
+    "cursorText": "#1A1520",
+    "black": "#38303F",
+    "red": "#C47085",
+    "green": "#7EAA8E",
+    "yellow": "#C4A870",
+    "blue": "#7080C4",
+    "magenta": "#B070B8",
+    "cyan": "#6EA0B0",
+    "white": "#C0B8C8",
+    "brightBlack": "#584F62",
+    "brightRed": "#DA8A9E",
+    "brightGreen": "#98C4A8",
+    "brightYellow": "#DEBF8A",
+    "brightBlue": "#8A9ADE",
+    "brightMagenta": "#CA8AD2",
+    "brightCyan": "#88BACA",
+    "brightWhite": "#DAD2E2"
+  }
+}

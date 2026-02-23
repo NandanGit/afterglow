@@ -1,0 +1,30 @@
+{
+  "id": "slate-peak",
+  "name": "Slate Peak",
+  "subtitle": "Cool blue-gray · crisp steel",
+  "emoji": "🏔️",
+  "colors": {
+    "background": "#171A1E",
+    "text": "#CCD0D6",
+    "bold": "#E4E8EE",
+    "selection": "#262E38",
+    "cursor": "#CCD0D6",
+    "cursorText": "#171A1E",
+    "black": "#32383E",
+    "red": "#C07878",
+    "green": "#78A880",
+    "yellow": "#B8A870",
+    "blue": "#6890B8",
+    "magenta": "#9878A8",
+    "cyan": "#60A0B0",
+    "white": "#BEC4CA",
+    "brightBlack": "#525A62",
+    "brightRed": "#DA9292",
+    "brightGreen": "#92C29A",
+    "brightYellow": "#D2C28A",
+    "brightBlue": "#82AAD2",
+    "brightMagenta": "#B292C2",
+    "brightCyan": "#7ABACA",
+    "brightWhite": "#D8DEE4"
+  }
+}

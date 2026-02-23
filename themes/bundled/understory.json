@@ -1,0 +1,30 @@
+{
+  "id": "understory",
+  "name": "Understory",
+  "subtitle": "Forest floor · warm moss · dappled light",
+  "emoji": "🌿",
+  "colors": {
+    "background": "#1A1F18",
+    "text": "#D4CDBF",
+    "bold": "#EDE8DC",
+    "selection": "#2D4A2A",
+    "cursor": "#D4CDBF",
+    "cursorText": "#1A1F18",
+    "black": "#3B3F3A",
+    "red": "#C47A6E",
+    "green": "#8BAF6E",
+    "yellow": "#C9B87A",
+    "blue": "#6E8BA0",
+    "magenta": "#A07A8B",
+    "cyan": "#6AAF96",
+    "white": "#C8C2B4",
+    "brightBlack": "#5A5F58",
+    "brightRed": "#D49488",
+    "brightGreen": "#A4C888",
+    "brightYellow": "#DDD094",
+    "brightBlue": "#88A4BA",
+    "brightMagenta": "#BA94A4",
+    "brightCyan": "#84C8B0",
+    "brightWhite": "#E2DCD0"
+  }
+}

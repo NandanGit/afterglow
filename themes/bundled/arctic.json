@@ -1,0 +1,30 @@
+{
+  "id": "arctic",
+  "name": "Arctic",
+  "subtitle": "Deep glacial blue · frost and ice",
+  "emoji": "🧊",
+  "colors": {
+    "background": "#151B22",
+    "text": "#C8D4DE",
+    "bold": "#E0EAF2",
+    "selection": "#1E3448",
+    "cursor": "#C8D4DE",
+    "cursorText": "#151B22",
+    "black": "#303840",
+    "red": "#C07070",
+    "green": "#70A880",
+    "yellow": "#C0A868",
+    "blue": "#6090C0",
+    "magenta": "#9878A8",
+    "cyan": "#58A8B8",
+    "white": "#C0C8D0",
+    "brightBlack": "#505A64",
+    "brightRed": "#DA8A8A",
+    "brightGreen": "#8AC29A",
+    "brightYellow": "#DAC282",
+    "brightBlue": "#7AAADA",
+    "brightMagenta": "#B292C2",
+    "brightCyan": "#72C2D2",
+    "brightWhite": "#DAE2EA"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "id": "nebula",
+  "name": "Nebula",
+  "subtitle": "Deep indigo-violet · electric accents",
+  "emoji": "🔮",
+  "colors": {
+    "background": "#161420",
+    "text": "#CCC8DC",
+    "bold": "#E4E0F4",
+    "selection": "#2A2048",
+    "cursor": "#CCC8DC",
+    "cursorText": "#161420",
+    "black": "#34303E",
+    "red": "#D07080",
+    "green": "#70A890",
+    "yellow": "#C4A468",
+    "blue": "#6080D0",
+    "magenta": "#B868C0",
+    "cyan": "#58A0C0",
+    "white": "#C0BCC8",
+    "brightBlack": "#545060",
+    "brightRed": "#EA8A9A",
+    "brightGreen": "#8AC2AA",
+    "brightYellow": "#DEBE82",
+    "brightBlue": "#7A9AEA",
+    "brightMagenta": "#D282DA",
+    "brightCyan": "#72BADA",
+    "brightWhite": "#DAD6E2"
+  }
+}

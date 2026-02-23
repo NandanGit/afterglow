@@ -1,0 +1,30 @@
+{
+  "id": "deep-ocean",
+  "name": "Deep Ocean",
+  "subtitle": "Dark teal-black · ocean depths",
+  "emoji": "🐋",
+  "colors": {
+    "background": "#141C1E",
+    "text": "#C0D0D4",
+    "bold": "#D8E8EC",
+    "selection": "#1A3840",
+    "cursor": "#C0D0D4",
+    "cursorText": "#141C1E",
+    "black": "#2E383A",
+    "red": "#C07878",
+    "green": "#68A880",
+    "yellow": "#B8A868",
+    "blue": "#5890B0",
+    "magenta": "#9080A8",
+    "cyan": "#50A8A0",
+    "white": "#B8C4C8",
+    "brightBlack": "#4E5A5E",
+    "brightRed": "#DA9292",
+    "brightGreen": "#82C29A",
+    "brightYellow": "#D2C282",
+    "brightBlue": "#72AACA",
+    "brightMagenta": "#AA9AC2",
+    "brightCyan": "#6AC2BA",
+    "brightWhite": "#D2DEE2"
+  }
+}

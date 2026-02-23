@@ -1,0 +1,30 @@
+{
+  "id": "merlot",
+  "name": "Merlot",
+  "subtitle": "Deep wine-red · cream and berry",
+  "emoji": "🍷",
+  "colors": {
+    "background": "#1C1416",
+    "text": "#D8C8CC",
+    "bold": "#F0E0E4",
+    "selection": "#402028",
+    "cursor": "#D8C8CC",
+    "cursorText": "#1C1416",
+    "black": "#3C3034",
+    "red": "#D06868",
+    "green": "#80A878",
+    "yellow": "#C8A060",
+    "blue": "#7088A8",
+    "magenta": "#C06880",
+    "cyan": "#68A098",
+    "white": "#C8BEC2",
+    "brightBlack": "#5C5054",
+    "brightRed": "#EA8282",
+    "brightGreen": "#9AC292",
+    "brightYellow": "#E2BA7A",
+    "brightBlue": "#8AA2C2",
+    "brightMagenta": "#DA829A",
+    "brightCyan": "#82BAB2",
+    "brightWhite": "#E2D8DC"
+  }
+}

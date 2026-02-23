@@ -1,0 +1,30 @@
+{
+  "id": "tidal-pool",
+  "name": "Tidal Pool",
+  "subtitle": "Aquamarine dark · sandy warm accents",
+  "emoji": "🌊",
+  "colors": {
+    "background": "#161C1A",
+    "text": "#C8D4CE",
+    "bold": "#E0ECE4",
+    "selection": "#203830",
+    "cursor": "#C8D4CE",
+    "cursorText": "#161C1A",
+    "black": "#303A36",
+    "red": "#C08070",
+    "green": "#70B080",
+    "yellow": "#C0A860",
+    "blue": "#6090A8",
+    "magenta": "#A07898",
+    "cyan": "#50B0A0",
+    "white": "#C0CAC4",
+    "brightBlack": "#505C58",
+    "brightRed": "#DA9A8A",
+    "brightGreen": "#8ACA9A",
+    "brightYellow": "#DAC27A",
+    "brightBlue": "#7AAAC2",
+    "brightMagenta": "#BA92B2",
+    "brightCyan": "#6ACABA",
+    "brightWhite": "#DAE4DE"
+  }
+}

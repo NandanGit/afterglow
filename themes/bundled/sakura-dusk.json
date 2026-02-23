@@ -1,0 +1,30 @@
+{
+  "id": "sakura-dusk",
+  "name": "Sakura Dusk",
+  "subtitle": "Warm gray-dark · cherry blossom tones",
+  "emoji": "🌸",
+  "colors": {
+    "background": "#1E1A1C",
+    "text": "#D8CCD0",
+    "bold": "#F0E4E8",
+    "selection": "#402838",
+    "cursor": "#D8CCD0",
+    "cursorText": "#1E1A1C",
+    "black": "#3C3438",
+    "red": "#D07878",
+    "green": "#88A878",
+    "yellow": "#CCA868",
+    "blue": "#7888B0",
+    "magenta": "#C07090",
+    "cyan": "#70A098",
+    "white": "#C8C0C4",
+    "brightBlack": "#5C5458",
+    "brightRed": "#EA9292",
+    "brightGreen": "#A2C292",
+    "brightYellow": "#E6C282",
+    "brightBlue": "#92A2CA",
+    "brightMagenta": "#DA8AAA",
+    "brightCyan": "#8ABAB2",
+    "brightWhite": "#E2DADE"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "id": "ember",
+  "name": "Ember",
+  "subtitle": "Near-black · amber and flame",
+  "emoji": "🔥",
+  "colors": {
+    "background": "#1C1614",
+    "text": "#D8CCBF",
+    "bold": "#F0E4D4",
+    "selection": "#4A2820",
+    "cursor": "#D8CCBF",
+    "cursorText": "#1C1614",
+    "black": "#3E3430",
+    "red": "#D47060",
+    "green": "#8EA868",
+    "yellow": "#D4A850",
+    "blue": "#7088A8",
+    "magenta": "#B87088",
+    "cyan": "#68A090",
+    "white": "#CCC4B4",
+    "brightBlack": "#5E544E",
+    "brightRed": "#EE8A7A",
+    "brightGreen": "#A8C282",
+    "brightYellow": "#EEC26A",
+    "brightBlue": "#8AA2C2",
+    "brightMagenta": "#D28AA0",
+    "brightCyan": "#82BAAA",
+    "brightWhite": "#E6DED0"
+  }
+}
