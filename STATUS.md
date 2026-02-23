@@ -1,6 +1,6 @@
 # Terminal Theme Builder — Project Status
 
-## Current Phase: 1 (Complete)
+## Current Phase: Complete
 
 ## Phase Tracker
 
@@ -10,10 +10,10 @@
 | 2. Theme Data | ✅ Done | 16 theme JSONs, registry, bundled imports, main.ts entry |
 | 3. Core UI | ✅ Done | Header, palette strip, color display |
 | 4. Terminal Simulator | ✅ Done | Scenarios, engine, renderer, preview panel |
-| 5. Custom Builder | ⬜ Not Started | Palette generator, derivation, builder UI |
-| 6. Export | ⬜ Not Started | Plist encoder, serializers, exporter, guide modal |
-| 7. Additional Features | ⬜ Not Started | Comparison, URL sharing, community, search, WCAG, fonts, shortcuts, ambient, favorites |
-| 8. Polish | ⬜ Not Started | Visual QA, transitions, edge cases, testing |
+| 5. Custom Builder | ✅ Done | Palette generator, derivation, builder UI |
+| 6. Export | ✅ Done | Plist encoder, serializers, exporter, guide modal |
+| 7. Additional Features | ✅ Done | Comparison, URL sharing, community, search, WCAG, fonts, shortcuts, ambient, favorites |
+| 8. Polish | ✅ Done | Visual QA, transitions, edge cases, testing |
 
 ## Completion Legend
 - ⬜ Not Started

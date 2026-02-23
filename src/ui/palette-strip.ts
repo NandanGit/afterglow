@@ -1,7 +1,9 @@
 import { store } from '../store/store.ts';
 import type { Theme } from '../types/theme.ts';
-import { createElement, Star } from 'lucide';
+import { createElement, Star, Heart } from 'lucide';
 import type { IconNode } from 'lucide';
+
+let favoritesFilterActive = false;
 
 function createStarIcon(filled: boolean): SVGElement {
   const attrs: Record<string, string> = {
@@ -32,6 +34,10 @@ function createCard(theme: Theme, isActive: boolean, isFav: boolean): HTMLElemen
   const card = document.createElement('div');
   card.className = 'palette-card' + (isActive ? ' palette-card--active' : '');
   card.dataset.themeId = theme.id;
+
+  const accent = theme.colors.selection;
+  card.style.background = `linear-gradient(135deg, color-mix(in srgb, ${accent} 55%, #181818) 0%, #181818 70%)`;
+  card.style.borderColor = `color-mix(in srgb, ${accent} 35%, #2a2a2a)`;
 
   const starBtn = document.createElement('button');
   starBtn.className = 'card-star-btn';
@@ -76,9 +82,12 @@ export function mountPaletteStrip(container: HTMLElement): () => void {
     <div class="palette-strip-wrapper">
       <div class="palette-strip-header">
         <span class="palette-label">CHOOSE A PALETTE</span>
-        <div class="palette-tabs">
-          <button class="palette-tab palette-tab--active" data-tab="handcrafted">Default</button>
-          <button class="palette-tab" data-tab="community">Community</button>
+        <div class="palette-header-right">
+          <button class="favorites-filter-btn" id="favorites-filter-btn" title="Show favorites only"></button>
+          <div class="palette-tabs">
+            <button class="palette-tab palette-tab--active" data-tab="handcrafted">Default</button>
+            <button class="palette-tab" data-tab="community">Community</button>
+          </div>
         </div>
       </div>
       <div class="palette-scroll" id="palette-scroll"></div>
@@ -100,8 +109,18 @@ export function mountPaletteStrip(container: HTMLElement): () => void {
     });
   });
 
+  const favBtn = container.querySelector('#favorites-filter-btn') as HTMLButtonElement;
+  const heartIcon = createElement(Heart as IconNode, { width: '14', height: '14' }) as unknown as Node;
+  favBtn.appendChild(heartIcon);
+  favBtn.appendChild(document.createTextNode(' Favorites'));
+  favBtn.addEventListener('click', () => {
+    favoritesFilterActive = !favoritesFilterActive;
+    favBtn.classList.toggle('favorites-filter-btn--active', favoritesFilterActive);
+    render();
+  });
+
   function render(): void {
-    const { themes, activeThemeId, favorites, activeTab } = store.getState();
+    const { themes, activeThemeId, favorites, activeTab, searchQuery } = store.getState();
     if (activeTab === 'community') {
       scroll.style.display = 'none';
       communityEmpty.style.display = 'flex';
@@ -110,10 +129,32 @@ export function mountPaletteStrip(container: HTMLElement): () => void {
     scroll.style.display = 'flex';
     communityEmpty.style.display = 'none';
     scroll.innerHTML = '';
+
+    const query = searchQuery.toLowerCase();
+
     for (const [, theme] of themes) {
       if (theme.source !== 'bundled') continue;
+
+      // Search filter
+      if (query && !theme.name.toLowerCase().includes(query) && !theme.subtitle.toLowerCase().includes(query)) continue;
+
+      // Favorites filter
+      if (favoritesFilterActive && !favorites.has(theme.id)) continue;
+
       const card = createCard(theme, theme.id === activeThemeId, favorites.has(theme.id));
       scroll.appendChild(card);
+    }
+
+    // Show empty state for favorites filter
+    if (favoritesFilterActive && scroll.children.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'community-empty';
+      empty.style.width = '100%';
+      const text = document.createElement('p');
+      text.className = 'community-empty-text';
+      text.textContent = 'No favorites yet — click ★ on any theme';
+      empty.appendChild(text);
+      scroll.appendChild(empty);
     }
   }
 
@@ -123,7 +164,8 @@ export function mountPaletteStrip(container: HTMLElement): () => void {
       state.activeThemeId !== prev.activeThemeId ||
       state.favorites !== prev.favorites ||
       state.themes !== prev.themes ||
-      state.activeTab !== prev.activeTab
+      state.activeTab !== prev.activeTab ||
+      state.searchQuery !== prev.searchQuery
     ) {
       render();
     }

@@ -11,9 +11,13 @@ export function mountHeader(container: HTMLElement): () => void {
   const nameEl = container.querySelector('.header-theme-name')!;
 
   function update(): void {
-    const { activeThemeId, themes } = store.getState();
-    const theme = themes.get(activeThemeId);
-    nameEl.textContent = theme ? `· ${theme.name}` : '';
+    const state = store.getState();
+    if (state.customModeActive && state.customTheme) {
+      nameEl.textContent = `· ${state.customTheme.name}`;
+    } else {
+      const theme = state.themes.get(state.activeThemeId);
+      nameEl.textContent = theme ? `· ${theme.name}` : '';
+    }
   }
 
   update();

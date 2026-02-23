@@ -98,9 +98,10 @@ export function mountPreview(container: HTMLElement): () => void {
   }
 
   function renderCompareBtn(): void {
+    const { comparisonEnabled } = store.getState();
     compareBtn.innerHTML = '';
     const icon = createElement(Columns2 as IconNode, {
-      width: '16', height: '16', class: 'icon-dim',
+      width: '16', height: '16', class: comparisonEnabled ? 'icon-active' : 'icon-dim',
     });
     compareBtn.appendChild(icon as unknown as Node);
   }
@@ -140,6 +141,20 @@ export function mountPreview(container: HTMLElement): () => void {
     store.setState({ looping: !current });
   });
 
+  // Compare toggle
+  compareBtn.addEventListener('click', () => {
+    const state = store.getState();
+    if (!state.comparisonEnabled) {
+      // Default comparison theme to the next theme in list
+      const themeIds = [...state.themes.keys()];
+      const currentIdx = themeIds.indexOf(state.activeThemeId);
+      const nextId = themeIds[(currentIdx + 1) % themeIds.length];
+      store.setState({ comparisonEnabled: true, comparisonThemeId: nextId });
+    } else {
+      store.setState({ comparisonEnabled: false });
+    }
+  });
+
   // Store subscriptions
   const unsub = store.subscribe((state, prev) => {
     if (state.activeScenario !== prev.activeScenario) {
@@ -153,6 +168,9 @@ export function mountPreview(container: HTMLElement): () => void {
     if (state.looping !== prev.looping) {
       engine.setLooping(state.looping);
       renderLoopBtn();
+    }
+    if (state.comparisonEnabled !== prev.comparisonEnabled) {
+      renderCompareBtn();
     }
     if (state.fontSize !== prev.fontSize) {
       renderer.setFontSize(state.fontSize);
