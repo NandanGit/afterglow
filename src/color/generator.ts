@@ -17,14 +17,34 @@ const SEMANTIC_HUES: Record<string, number> = {
 };
 
 export function generatePalette(controls: CustomControls): ThemeColors {
-  const { hue, warmth, saturation: sat, contrast } = controls;
+  const { hue, warmth, saturation: sat, contrast, brightness: bright } = controls;
   const effectiveHue = hue + warmth * 30;
 
-  // Core colors
-  const bgOklch: Oklch = { L: lerp(0.13, 0.22, contrast * 0.4), C: 0.01 + sat * 0.03, H: effectiveHue };
-  const textOklch: Oklch = { L: lerp(0.80, 0.92, contrast), C: 0.005 + sat * 0.01, H: effectiveHue };
-  const boldOklch: Oklch = { L: textOklch.L + 0.05, C: textOklch.C + 0.005, H: effectiveHue };
-  const selectionOklch: Oklch = { L: bgOklch.L + 0.08, C: bgOklch.C + 0.02, H: effectiveHue };
+  // Brightness (0=dark, 1=light) drives the overall bg/text lightness.
+  // Below 0.5 = dark mode (light text on dark bg), above 0.5 = light mode (dark text on light bg).
+  const isDark = bright <= 0.5;
+
+  // Background lightness: full range from very dark to very light
+  const bgBaseL = lerp(0.10, 0.95, bright);
+  const bgContrastShift = contrast * 0.06 * (isDark ? 1 : -1);
+  const bgOklch: Oklch = {
+    L: clampL(bgBaseL + bgContrastShift),
+    C: 0.01 + sat * 0.03,
+    H: effectiveHue,
+  };
+
+  // Text lightness: opposite of background for readability
+  const textBaseL = isDark ? lerp(0.82, 0.95, contrast) : lerp(0.25, 0.12, contrast);
+  const textOklch: Oklch = { L: textBaseL, C: 0.005 + sat * 0.01, H: effectiveHue };
+  const boldOklch: Oklch = {
+    L: clampL(textOklch.L + (isDark ? 0.05 : -0.05)),
+    C: textOklch.C + 0.005,
+    H: effectiveHue,
+  };
+
+  // Selection: slightly offset from background
+  const selOffset = isDark ? 0.08 : -0.06;
+  const selectionOklch: Oklch = { L: clampL(bgOklch.L + selOffset), C: bgOklch.C + 0.02, H: effectiveHue };
 
   const background = oklchToHex(bgOklch);
   const text = oklchToHex(textOklch);
@@ -33,23 +53,40 @@ export function generatePalette(controls: CustomControls): ThemeColors {
   const cursor = text;
   const cursorText = background;
 
-  // ANSI normals
-  const ansiL = lerp(0.55, 0.70, contrast * 0.5);
-  const ansiC = lerp(0.06, 0.14, sat);
+  // ANSI normals — lightness adapts to background for contrast
+  // Dark themes: ANSI colors are brighter; Light themes: ANSI colors are deeper
+  const ansiL = isDark
+    ? lerp(0.55, 0.72, contrast * 0.5)
+    : lerp(0.48, 0.32, contrast * 0.5);
+
+  // In light mode, colors need significantly higher chroma to stay vivid against
+  // a bright background. Boost scales from 1× at brightness=0.5 to ~2.2× at brightness=1.
+  const ansiCBase = lerp(0.08, 0.22, sat);
+  const lightBoost = isDark ? 1.0 : lerp(1.0, 2.2, (bright - 0.5) * 2);
+  const ansiC = ansiCBase * lightBoost;
 
   const normalColors: Record<string, Oklch> = {};
   for (const [name, semanticHue] of Object.entries(SEMANTIC_HUES)) {
     normalColors[name] = { L: ansiL, C: ansiC, H: semanticHue + warmth * 15 };
   }
-  normalColors['black'] = { L: lerp(0.25, 0.35, contrast), C: 0.01, H: effectiveHue };
-  normalColors['white'] = { L: lerp(0.70, 0.80, contrast), C: 0.01, H: effectiveHue };
+  normalColors['black'] = {
+    L: isDark ? lerp(0.25, 0.35, contrast) : lerp(0.35, 0.25, contrast),
+    C: 0.01,
+    H: effectiveHue,
+  };
+  normalColors['white'] = {
+    L: isDark ? lerp(0.70, 0.80, contrast) : lerp(0.80, 0.70, contrast),
+    C: 0.01,
+    H: effectiveHue,
+  };
 
-  // ANSI brights — derived from normals
+  // ANSI brights — derived from normals (direction flips for light themes)
+  const brightShift = isDark ? lerp(0.08, 0.15, contrast) : lerp(-0.08, -0.13, contrast);
   const brightColors: Record<string, string> = {};
   for (const [name, oklch] of Object.entries(normalColors)) {
     const brightName = 'bright' + name.charAt(0).toUpperCase() + name.slice(1);
     brightColors[brightName] = oklchToHex({
-      L: oklch.L + lerp(0.08, 0.15, contrast),
+      L: clampL(oklch.L + brightShift),
       C: oklch.C + 0.02,
       H: oklch.H,
     });
@@ -85,4 +122,8 @@ export function generatePalette(controls: CustomControls): ThemeColors {
     brightCyan: brightColors['brightCyan'],
     brightWhite: brightColors['brightWhite'],
   };
+}
+
+function clampL(l: number): number {
+  return Math.max(0, Math.min(1, l));
 }

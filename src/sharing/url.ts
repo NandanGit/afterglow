@@ -2,7 +2,7 @@ import type { Theme, ColorSlotId, ThemeColors } from '../types/theme.ts';
 import type { CustomControls } from '../store/store.ts';
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
 
-const CURRENT_VERSION = '02';
+const CURRENT_VERSION = '03';
 const SEPARATOR = '-';
 
 const SLOT_ORDER: ColorSlotId[] = [
@@ -20,7 +20,7 @@ export interface DecodedShare {
 export function encodeThemeToURL(theme: Theme, controls?: CustomControls): string {
   const hexValues = SLOT_ORDER.map(slot => theme.colors[slot].replace('#', '')).join('');
   const ctrlStr = controls
-    ? `\x01${controls.hue.toFixed(2)},${controls.warmth.toFixed(2)},${controls.saturation.toFixed(2)},${controls.contrast.toFixed(2)}`
+    ? `\x01${controls.hue.toFixed(2)},${controls.warmth.toFixed(2)},${controls.saturation.toFixed(2)},${controls.contrast.toFixed(2)},${controls.brightness.toFixed(2)}`
     : '';
   const payload = theme.name + '\0' + hexValues + ctrlStr;
   const compressed = compressToEncodedURIComponent(payload);
@@ -39,6 +39,8 @@ export function decodeThemeFromURL(param: string): DecodedShare | null {
       return decodeV1(data);
     case '02':
       return decodeV2(data);
+    case '03':
+      return decodeV3(data);
     default:
       return null;
   }
@@ -89,8 +91,11 @@ function decodeV2(data: string): DecodedShare | null {
     let controls: CustomControls | undefined;
     if (ctrlSep !== -1) {
       const parts = rest.slice(ctrlSep + 1).split(',').map(Number);
-      if (parts.length === 4 && parts.every(n => !isNaN(n))) {
-        controls = { hue: parts[0], warmth: parts[1], saturation: parts[2], contrast: parts[3] };
+      if (parts.length >= 4 && parts.slice(0, 4).every(n => !isNaN(n))) {
+        controls = {
+          hue: parts[0], warmth: parts[1], saturation: parts[2], contrast: parts[3],
+          brightness: (parts.length >= 5 && !isNaN(parts[4])) ? parts[4] : 0.2,
+        };
       }
     }
 
@@ -98,4 +103,9 @@ function decodeV2(data: string): DecodedShare | null {
   } catch {
     return null;
   }
+}
+
+function decodeV3(data: string): DecodedShare | null {
+  // V3 is identical to V2 format but always expects 5 controls
+  return decodeV2(data);
 }

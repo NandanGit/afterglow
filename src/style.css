@@ -881,6 +881,25 @@ body::before {
     );
 }
 
+.custom-slider--brightness {
+    background: linear-gradient(to right, #111, #888, #f0f0f0);
+}
+
+.custom-slider-hints {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding-left: 76px;
+    margin-top: -4px;
+}
+
+.custom-slider-hints span {
+    font-size: 0.5rem;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
 /* Surprise Me */
 .custom-surprise-btn {
     display: flex;

@@ -19,6 +19,7 @@ function icon(node: IconNode, size = 16, cls = ''): Node {
 }
 
 const SLIDER_DEFS: { key: keyof CustomControls; label: string; min: number; max: number; step: number }[] = [
+  { key: 'brightness', label: 'Brightness', min: 0, max: 1, step: 0.1 },
   { key: 'hue', label: 'Hue', min: 0, max: 360, step: 1 },
   { key: 'warmth', label: 'Warmth', min: -1, max: 1, step: 0.05 },
   { key: 'saturation', label: 'Saturation', min: 0, max: 1, step: 0.01 },
@@ -105,7 +106,11 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
       label.textContent = def.label;
       const input = document.createElement('input');
       input.type = 'range';
-      input.className = 'custom-slider' + (def.key === 'hue' ? ' custom-slider--hue' : '');
+      const isBrightness = def.key === 'brightness';
+      const isHue = def.key === 'hue';
+      input.className = 'custom-slider'
+        + (isHue ? ' custom-slider--hue' : '')
+        + (isBrightness ? ' custom-slider--brightness' : '');
       input.min = String(def.min);
       input.max = String(def.max);
       input.step = String(def.step);
@@ -115,6 +120,20 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
       });
       row.appendChild(label);
       row.appendChild(input);
+
+      // Add Dark/Light labels for brightness slider
+      if (isBrightness) {
+        const hints = document.createElement('div');
+        hints.className = 'custom-slider-hints';
+        const darkHint = document.createElement('span');
+        darkHint.textContent = 'Dark';
+        const lightHint = document.createElement('span');
+        lightHint.textContent = 'Light';
+        hints.appendChild(darkHint);
+        hints.appendChild(lightHint);
+        row.appendChild(hints);
+      }
+
       slidersDiv.appendChild(row);
     }
     wrapper.appendChild(slidersDiv);
@@ -125,11 +144,13 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
     surpriseBtn.appendChild(icon(Dices as IconNode, 16));
     surpriseBtn.appendChild(document.createTextNode(' Surprise Me'));
     surpriseBtn.addEventListener('click', () => {
+      const current = store.getState();
       const controls: CustomControls = {
         hue: Math.random() * 360,
         warmth: Math.random() * 2 - 1,
-        saturation: 0.3 + Math.random() * 0.5,
-        contrast: 0.3 + Math.random() * 0.5,
+        saturation: 0.4 + Math.random() * 0.45,
+        contrast: 0.45 + Math.random() * 0.45,
+        brightness: current.customControls.brightness,
       };
       setCustomControls(controls);
       render();

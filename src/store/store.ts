@@ -12,6 +12,7 @@ export interface CustomControls {
   warmth: number;
   saturation: number;
   contrast: number;
+  brightness: number; // 0 (dark) to 1 (light), step 0.1
 }
 
 export interface AppState {
@@ -81,7 +82,7 @@ export const store = createStore<AppState>()(() => ({
   activeThemeId: 'understory',
   themes: bundledThemes,
   customTheme: null,
-  customControls: { hue: 180, warmth: 0, saturation: 0.5, contrast: 0.5 },
+  customControls: { hue: 180, warmth: 0, saturation: 0.5, contrast: 0.5, brightness: 0.2 },
   pinnedColors: new Set(),
   locks: { ...initialLocks },
   globalLock: false,
@@ -127,7 +128,7 @@ export function enterCustomMode(): void {
   const activeTheme = state.themes.get(state.activeThemeId);
   if (!activeTheme) return;
 
-  const controls: CustomControls = { hue: 180, warmth: 0, saturation: 0.5, contrast: 0.5 };
+  const controls: CustomControls = { hue: 180, warmth: 0, saturation: 0.5, contrast: 0.5, brightness: 0.2 };
   const colors = generatePalette(controls);
 
   store.setState({
