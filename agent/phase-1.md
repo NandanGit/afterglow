@@ -50,7 +50,7 @@ Replace the contents of `index.html`:
 ### 1.3 Install Dependencies
 
 ```bash
-npm install zustand lz-string
+npm install zustand lz-string lucide
 npm install -D @types/lz-string
 ```
 

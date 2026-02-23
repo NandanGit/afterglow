@@ -25,6 +25,8 @@ A browser-based **Terminal Theme Builder** built with Vite + TypeScript (no fram
 - Target desktop viewports ≥ 1280px; no mobile
 - JetBrains Mono (Google Fonts) as primary monospace font
 - Always run `npm run dev` during development
+- Icons: Lucide (`lucide`) — tree-shakeable SVG icons (~200 bytes per icon); emojis retained only as theme identity in data
+- Bundle size: Minimize aggressively — tree-shake all imports, no unused dependencies, smallest possible output
 
 ---
 
@@ -47,9 +49,14 @@ A browser-based **Terminal Theme Builder** built with Vite + TypeScript (no fram
 | 13 | Additional themes | Tidal Pool, Merlot, Moss Garden, Nebula, Slate Peak, Seville, Moonstone |
 | 14 | Ambient background | `body::before` pseudo-element radial gradient |
 | 15 | URL sharing | Version prefix + `-` separator + lz-string compression |
-| 16 | Export architecture | Separate serializer (pure) + exporter (side effects) |
+| 16 | Export architecture | Separate serializer (pure) + exporter (side effects); split-button with dropdown for format selection |
 | 17 | Speed range | 0–3x in 0.1x increments |
 | 18 | Store | Zustand vanilla, one central store, localStorage sync for preferences |
+| 19 | Icons | Lucide for all UI icons (tree-shakeable SVGs); theme emojis retained in data only |
+| 20 | Bundle size | Aggressive tree-shaking, minimal deps, smallest possible production build |
+| 21 | Theme source of truth | `themes/registry.json` — bundled preloaded, community loaded on-demand via jsDelivr |
+| 22 | CDN | jsDelivr from `NandanGit/afterglow` — no setup needed for public repos |
+| 23 | Scenario commands | Multi-command per scenario; each command typed letter-by-letter before output plays |
 
 ---
 
@@ -64,9 +71,12 @@ afterglow/
 ├── agent/                         # Agent instruction files (this folder)
 │   ├── PLAN.md                    # This file (master plan)
 │   ├── phase-1.md through phase-8.md
-├── themes/                        # Theme JSON files (served by jsDelivr in prod)
-│   ├── registry.json
-│   └── *.json                     # 16 theme files
+├── themes/                        # Theme data (source of truth; jsDelivr serves in prod)
+│   ├── registry.json              # Master registry — source of truth for all theme metadata
+│   ├── bundled/                   # 16 handcrafted themes (statically imported into bundle)
+│   │   └── {id}.json
+│   └── community/                 # Community-contributed themes (loaded on-demand)
+│       └── {id}.json
 ├── src/
 │   ├── main.ts                    # App entry
 │   ├── style.css                  # Global styles + CSS variable framework
@@ -237,7 +247,9 @@ generatePalette(hue, warmth, saturation, contrast) → ThemeColors
 
 ## Simulator Architecture
 
-- **Scenarios**: Declarative arrays of `ScenarioEvent` objects
+- **Scenarios**: Each scenario contains multiple sequential commands with declarative output events
+- **Command simulation**: Each command is typed out letter-by-letter (keystroke animation), then its output events play
+- **Flow**: Prompt appears → command typed char-by-char → brief pause → output events → next prompt → repeat
 - **Engine**: `setTimeout` chains, speed-scaled delays, loop/pause support
 - **Renderer**: Writes `<span class="ansi-red">` etc., CSS variables handle actual colors
 - **Speed changes**: Cancel timeout, recalculate remaining delay at new speed
@@ -249,7 +261,7 @@ generatePalette(hue, warmth, saturation, contrast) → ThemeColors
 - **Serializers** (pure functions): `serializeTerminal()`, `serializeJson()`, `serializeCssVars()`
 - **Exporter**: Takes serialized output → Blob → `<a download>` trigger
 - **Plist encoder**: Rewrite of `color-theme-min.js` in TypeScript
-- **Post-export**: Modal with Terminal.app import steps (first export per session only)
+- **Post-export**: Format-specific import guide modal shown every time, unless user checks "Don't show this again" (localStorage)
 
 ---
 
@@ -259,6 +271,7 @@ generatePalette(hue, warmth, saturation, contrast) → ThemeColors
 - Top layer clipped: `clip-path: inset(0 0 0 ${sliderX}px)`
 - Draggable vertical bar at clip boundary
 - Both share same simulator data, different CSS variables
+- **Text selection disabled** in comparison mode: `user-select: none` on both preview containers to prevent accidental text selection during slider drag
 
 ---
 
@@ -268,3 +281,32 @@ Format: `?theme=01-<lz-string-compressed>`
 - Version prefix `01` + separator `-` + compressed payload
 - Payload: theme name + null byte + concatenated hex values (fixed slot order)
 - Backward compatible: future versions add new parsers, old URLs always work
+
+---
+
+## jsDelivr CDN
+
+Community themes and registry are served via jsDelivr from the public GitHub repo:
+
+```
+Base URL:  https://cdn.jsdelivr.net/gh/NandanGit/afterglow@main/themes/
+Registry:  .../themes/registry.json
+Bundled:   .../themes/bundled/{id}.json
+Community: .../themes/community/{id}.json
+```
+
+**No setup required** — jsDelivr automatically serves any file from a public GitHub repo. Push to `main` and files are available immediately. CDN cache auto-purges on new commits (~12h propagation).
+
+For version pinning (stable releases), use a commit SHA or tag: `@{sha}` or `@v1.0.0`.
+
+---
+
+## Suggested Upgrades
+
+| # | Upgrade | Rationale |
+|---|---------|-----------|
+| 1 | Lucide icons | Professional cross-platform SVG icons instead of platform-dependent emoji rendering |
+| 2 | Dynamic community loading | Fetch registry on tab open, individual themes on selection — zero upfront cost |
+| 3 | CSS `content-visibility: auto` | Skip rendering for off-screen palette cards — reduces initial paint cost |
+| 4 | `rollup-plugin-visualizer` (dev only) | Track bundle size during development to catch bloat early |
+| 5 | `font-display: optional` | Prevent layout shift from font loading (already using `swap`, but `optional` is leaner) |

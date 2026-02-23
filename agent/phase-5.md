@@ -187,9 +187,17 @@ A styled CTA button. Clicking it calls `store.enterCustomMode()`.
 **Discard button:**
 - Calls `store.exitCustomMode()`
 
-**Export buttons** (functionality in Phase 6 — for now, just show the buttons):
-- "📥 Export .terminal" — disabled for now
-- "📋 CSS Variables" — disabled for now
+**Icon usage — use Lucide icons throughout (tree-shakeable, import individually):**
+- Surprise Me: Lucide `Dices` icon
+- Lock/Unlock: Lucide `Lock` / `Unlock` icons
+- Pin/Unpin: Lucide `Pin` / `PinOff` icons
+- Link (normal↔bright): Lucide `Link` / `Unlink` icons
+- Discard: Lucide `X` icon
+
+**Export split-button** (functionality in Phase 6 — for now, just show the button):
+- Lucide `Download` icon + "Export" with Lucide `ChevronDown` dropdown arrow — disabled for now
+- Dropdown formats: `.terminal`, `.json`, `.css`
+- Lucide `ClipboardCopy` icon + "Copy CSS" — disabled for now
 
 **Theme name:**
 - Editable text input at the top

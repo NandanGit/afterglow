@@ -35,7 +35,8 @@ export function mountComparison(container: HTMLElement): () => void;
 3. The simulator engine emits events → both renderers receive them
 4. Container A has CSS variables from the active theme; Container B from the comparison theme
 5. Container B has `clip-path: inset(0 0 0 ${pos}px)` updated on slider drag
-6. Draggable bar: `pointerdown` on bar → `pointermove` on document → `pointerup` cleanup
+6. **Both containers**: Apply `user-select: none` to prevent text selection during slider drag — accidental selection looks broken and is never the user's intent in comparison mode
+7. Draggable bar: `pointerdown` on bar → `pointermove` on document → `pointerup` cleanup
    - Clamp position to container bounds
    - Update `store.sliderPosition` (or keep position in local state since it's purely visual)
 
@@ -93,8 +94,7 @@ function decodeV1(data: string): Theme | null;
 ### 7.3 Community Theme Registry (`src/themes/registry.ts`)
 
 ```typescript
-const JSDELIVR_BASE = 'https://cdn.jsdelivr.net/gh/<user>/<repo>@main/themes';
-// Replace <user>/<repo> with the actual GitHub repo path when known
+const JSDELIVR_BASE = 'https://cdn.jsdelivr.net/gh/NandanGit/afterglow@main/themes';
 
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
@@ -112,7 +112,8 @@ export async function fetchRegistry(): Promise<RegistryEntry[]>;
 export async function fetchCommunityTheme(id: string): Promise<Theme>;
 // 1. Check localStorage for cached theme JSON
 // 2. If cached, return it
-// 3. Otherwise fetch from jsDelivr, cache, return
+// 3. Otherwise fetch from jsDelivr: `${JSDELIVR_BASE}/community/${id}.json`
+// 4. Cache in localStorage with TTL, return
 
 export function clearRegistryCache(): void;
 ```
@@ -206,7 +207,7 @@ The CSS for `body::before` was already set up in Phase 1. This just connects it 
 
 The star/favorite toggle was added in Phase 3. Now add:
 
-- A "★ Favorites" filter chip/button near the search input
+- A Lucide `Star` icon + "Favorites" filter chip/button near the search input
 - When active, only shows favorited themes in the palette strip
 - Toggle off to show all themes again
 - If no favorites exist, show a friendly empty state: "No favorites yet — click ★ on any theme"

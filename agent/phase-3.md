@@ -55,9 +55,9 @@ The palette strip is the horizontally scrollable row of theme cards.
 - Each card: `scroll-snap-align: start`
 - Hide scrollbar with `-webkit-scrollbar` styles or `scrollbar-width: none`
 
-**Card dimensions:** Each card ~130px wide, ~100px tall (refer to mockup proportions).
+**Card dimensions:** Each card should be wide enough to comfortably fit its content (~180–200px min-width). Title and subtitle must be truncated with ellipsis (`text-overflow: ellipsis; white-space: nowrap; overflow: hidden;`) if they overflow. Height ~100px (refer to mockup proportions).
 
-**Favorites:** Star icon in top-right. Filled when favorited, outline when not. Toggle on click → `store.toggleFavorite(id)`.
+**Favorites:** Use Lucide `Star` icon in top-right (import from `lucide`). Filled/solid when favorited, outline/stroke when not. Toggle on click → `store.toggleFavorite(id)`.
 
 ```typescript
 export function mountPaletteStrip(container: HTMLElement): () => void;
@@ -127,7 +127,7 @@ Add styles to `src/style.css` (or create component-specific CSS if you prefer, i
 - Color swatches (round): `border-radius: 50%`, ~32px diameter for ANSI, ~60px×40px for core
 - Tooltips: positioned above/below the swatch, dark bg, small text, `pointer-events: none`, fade in/out animation
 - Section labels: small caps, letter-spaced, muted color (match mockup typography)
-- Star icon: absolute positioned in card top-right
+- Star icon: Lucide `Star` SVG, absolute positioned in card top-right
 
 ## Verification
 

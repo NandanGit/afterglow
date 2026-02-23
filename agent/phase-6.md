@@ -119,7 +119,7 @@ Color slot names should be kebab-cased in the output (e.g., `brightRed` → `--b
 ```typescript
 import type { Theme } from '../types/theme';
 
-export type ExportFormat = 'terminal' | 'json';
+export type ExportFormat = 'terminal' | 'json' | 'css';
 
 export function exportTheme(theme: Theme, format: ExportFormat): void;
 // 1. Call the appropriate serializer
@@ -127,7 +127,7 @@ export function exportTheme(theme: Theme, format: ExportFormat): void;
 // 3. Create a temporary <a> element with download attribute
 // 4. Trigger click → download
 // 5. Clean up the object URL
-// 6. Show export guide modal if first export this session
+// 6. Show export guide modal if first .terminal export this session
 
 export function copyCssVars(theme: Theme): Promise<void>;
 // 1. Call serializeCssVars
@@ -163,30 +163,55 @@ export function closeModal(): void;
 
 ### 6.7 Export Guide Modal
 
-After the first `.terminal` export per session, show a modal with:
+After **every** export, show a modal with format-specific import instructions. The modal includes a checkbox: **"Don't show this again"**. If the user checks it and closes the modal, suppress future modals. Store this preference in `localStorage` (key: `exportGuideSuppress`).
 
+**For `.terminal` exports:**
 ```
-📥 How to Import Your Theme
+How to Import Your Theme
 
 1. Open Terminal.app
 2. Go to Terminal → Settings (⌘,)
 3. Click the "Profiles" tab
-4. Click the ⚙️ gear icon at the bottom
+4. Click the gear icon at the bottom
 5. Select "Import..."
 6. Choose your downloaded .terminal file
 7. (Optional) Set as default profile
 
 Note: Double-clicking the .terminal file will open a new
 Terminal window with the theme, but won't save it permanently.
+
+[ ] Don't show this again
 ```
 
-Track shown status in `sessionStorage.setItem('exportGuideShown', 'true')`.
+**For `.json` exports:**
+```
+Your Theme JSON
+
+Your theme has been exported as a JSON file.
+You can use this file to share your theme or
+import it into other tools that support JSON themes.
+
+[ ] Don't show this again
+```
+
+Track suppression in `localStorage.setItem('exportGuideSuppress', 'true')`. Reset suppression if the user clears localStorage.
 
 ### 6.8 Wire Export Buttons in Custom Builder
 
-Update `src/ui/custom-builder.ts`:
-- "📥 Export .terminal" button → `exportTheme(customTheme, 'terminal')`
-- "📋 CSS Variables" button → `copyCssVars(customTheme)`
+Update `src/ui/custom-builder.ts` (use Lucide icons, not emojis):
+
+**Export split-button with dropdown:**
+- Primary button: Lucide `Download` icon + "Export" — clicking it exports in the last-used format (default: `.terminal`)
+- Dropdown arrow at the end of the button (small chevron/caret) — opens a format picker:
+  - `.terminal` (macOS Terminal.app)
+  - `.json` (Raw JSON)
+  - `.css` (CSS Variables) — this copies to clipboard instead of downloading
+- Selecting a format from the dropdown exports immediately and sets it as the new default
+- Lucide `ChevronDown` icon for the dropdown arrow
+- Dropdown closes on selection or outside click
+
+**CSS Variables button** (separate from export):
+- Lucide `ClipboardCopy` icon + "Copy CSS" button → `copyCssVars(customTheme)`
 - Both should also be accessible for preset themes (not just custom) — consider adding export buttons to the right panel or making them always visible
 
 Also add export functionality for preset themes. Add export buttons to the color display section or right panel that work on the currently active theme (whether preset or custom).

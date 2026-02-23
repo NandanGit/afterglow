@@ -27,19 +27,24 @@ export interface OutputToken {
 }
 
 export interface ScenarioEvent {
-  type: 'output' | 'input' | 'clear' | 'pause';
+  type: 'output' | 'clear' | 'pause';
   text?: string;              // plain text (used if tokens not provided)
   tokens?: OutputToken[];     // rich colored output
   delay: number;              // ms before this event fires (at 1x speed)
-  typeSpeed?: number;         // ms per character for 'input' type (typing animation)
+}
+
+export interface ScenarioCommand {
+  text: string;              // command to type letter-by-letter, e.g., "git status"
+  typeSpeed?: number;        // ms per char for typing animation (default: 50, scaled by speed)
+  events: ScenarioEvent[];   // output events after this command
 }
 
 export interface Scenario {
   id: ScenarioId;
   title: string;
-  prompt: string;    // title bar text, e.g., "bash — tail -f server.log"
-  command: string;   // the command shown being typed, e.g., "tail -f /var/log/app/server.log"
-  events: ScenarioEvent[];
+  prompt: string;        // prompt prefix shown before each command, e.g., "❯" or "user@host:~$"
+  windowTitle: string;   // title bar text, e.g., "bash — ~/projects"
+  commands: ScenarioCommand[];  // commands simulated sequentially
 }
 ```
 
@@ -47,7 +52,11 @@ export interface Scenario {
 
 **This is the primary scenario and must match the mockup closely.**
 
-The mockup shows a `tail -f server.log` output with:
+This scenario should have multiple commands simulated sequentially. Each command is typed letter-by-letter before its output plays. Example commands:
+1. `cd /var/log/app` → brief directory change acknowledgment
+2. `tail -f server.log` → the main log output (bulk of the scenario)
+
+The mockup shows `tail -f server.log` output with:
 - Timestamps (dim), log levels (INFO=green, DEBUG=blue, WARN=yellow, ERROR=red), messages
 - A narrative arc: server starts → connections established → health checks → auth request → rate limit warning → DB timeout cascade (3 retries) → fatal error → exception with stack trace → circuit breaker → recovery
 
@@ -69,18 +78,18 @@ Create this as a `ScenarioEvent[]` with realistic delays between lines (200–80
 
 ### 4.3 Implement Remaining Scenarios
 
-Create 8 more scenario files. Each should feel authentic and showcase different ANSI colors:
+Create 8 more scenario files. Each should use **multiple commands** (2–4 per scenario), feel authentic, and showcase different ANSI colors. Every command is typed letter-by-letter before its output plays:
 
-- **`git.ts`** — `git status`, `git log --oneline`, `git diff` output. Show modified/staged/untracked files in appropriate colors.
-- **`python.ts`** — Python REPL session. Import statements, calculations, a traceback with colored error.
-- **`system.ts`** — `htop`-like system stats, `df -h` disk usage, `uptime` output.
-- **`docker.ts`** — `docker ps`, `docker-compose up` with service startup logs.
-- **`files.ts`** — `ls -la` with colored file types, `find` results, `tree` output.
-- **`build.ts`** — `npm run build` or `cargo build` with compilation steps, warnings, success message.
-- **`ssh.ts`** — SSH connection sequence, remote command execution, connection close.
-- **`all.ts`** — A curated mix of snippets from the other scenarios — the "highlight reel."
+- **`git.ts`** — Commands: `git status`, `git log --oneline -5`, `git diff src/main.ts`. Show modified/staged/untracked in appropriate colors.
+- **`python.ts`** — Commands: `python3`, `import math`, `math.sqrt(144)`, then a script that produces a traceback. REPL-style multi-command flow.
+- **`system.ts`** — Commands: `uptime`, `df -h`, `top -l 1 | head -20`. System stats with colored output.
+- **`docker.ts`** — Commands: `docker ps`, `docker-compose up -d`, `docker logs api --tail 20`. Service startup logs.
+- **`files.ts`** — Commands: `ls -la`, `find . -name "*.ts" | head -10`, `tree src/ -L 2`. Colored file types.
+- **`build.ts`** — Commands: `npm run lint`, `npm run build`. Compilation steps, warnings, success message.
+- **`ssh.ts`** — Commands: `ssh user@prod-server`, `systemctl status nginx`, `exit`. Remote session flow.
+- **`all.ts`** — A curated mix of commands from other scenarios — the "highlight reel."
 
-Each scenario should be 15–30 events long, take ~30–60 seconds at 1x speed.
+Each scenario should have 2–4 commands with 5–15 output events each, totaling ~30–60 seconds at 1x speed.
 
 ### 4.4 Implement the Simulator Engine (`src/simulator/engine.ts`)
 
@@ -124,9 +133,14 @@ export class SimulatorEngine {
 - After last event, if `looping` is true: wait 2 seconds (scaled by speed), then `reset()` + `play()`
 - If `looping` is false: call `onComplete()` — the renderer will show a blinking cursor at prompt
 
-**Input events (type: 'input'):**
-- Characters appear one at a time with `typeSpeed` delay between them (also scaled by speed)
-- After the full command is typed, a brief pause, then continue to next event
+**Multi-command flow:**
+- For each command in `scenario.commands[]`:
+  1. Render the prompt text (`scenario.prompt`)
+  2. Type out `command.text` letter-by-letter (`command.typeSpeed` ms per char, default 50, scaled by speed)
+  3. Brief pause (200ms at 1x speed)
+  4. Play all `command.events` sequentially with their delays
+  5. Move to next command
+- The command text must NOT appear instantly — each character is revealed one at a time
 
 ### 4.5 Implement the Terminal Renderer (`src/simulator/renderer.ts`)
 
@@ -139,7 +153,7 @@ export class TerminalRenderer {
 
   renderEvent(event: ScenarioEvent, index: number): void;
   showPrompt(text: string): void;         // show blinking cursor at prompt
-  showCommand(command: string): void;     // show the initial command in title
+  typeCommand(text: string, speed: number): void;  // type command letter-by-letter at prompt
   clear(): void;
   setFontSize(size: number): void;
   setFontFamily(family: string): void;
@@ -186,11 +200,11 @@ export class TerminalRenderer {
 - Subscribe to `store.speed`
 
 **Loop toggle:**
-- `⟳` icon button, filled/colored when looping is on, dimmed/outlined when off
+- Lucide `RotateCw` icon button, filled/colored when looping is on, dimmed/outlined when off
 - Click → `store.toggleLooping()`
 
 **Comparison toggle** (just the button for now — comparison view is Phase 7):
-- Small split-screen icon, dimmed by default
+- Lucide `Columns2` icon (split-screen), dimmed by default
 - Click → `store.toggleComparison()` (functionality in Phase 7)
 
 **Wiring:**
