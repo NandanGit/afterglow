@@ -103,6 +103,10 @@ export class TerminalRenderer {
   }
 
   private scrollToBottom(): void {
-    this.outputEl.scrollTop = this.outputEl.scrollHeight;
+    const el = this.outputEl;
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+    if (atBottom) {
+      el.scrollTop = el.scrollHeight;
+    }
   }
 }
