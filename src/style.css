@@ -901,6 +901,35 @@ body::before {
     display: flex;
     align-items: center;
     gap: 10px;
+    position: relative;
+    padding-left: 20px;
+}
+
+.custom-control-lock-btn {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #444;
+    cursor: pointer;
+    padding: 2px;
+    line-height: 0;
+    transition: color 0.15s ease;
+}
+
+.custom-control-lock-btn:hover {
+    color: #888;
+}
+
+.custom-control-lock-btn--active {
+    color: var(--theme-accent, #6aaf96);
+}
+
+.custom-control-lock-btn--active:hover {
+    color: var(--theme-accent, #6aaf96);
+    opacity: 0.8;
 }
 
 .custom-slider-label {

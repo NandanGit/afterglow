@@ -69,8 +69,23 @@ export function generatePalette(controls: CustomControls): ThemeColors {
   for (const [name, semanticHue] of Object.entries(SEMANTIC_HUES)) {
     normalColors[name] = { L: ansiL, C: ansiC, H: semanticHue + warmth * 15 };
   }
+  // ANSI "black" — lightness adapted for problematic mid-brightness range
+  // At 0.3–0.5: still dark bg but needs lighter black for contrast
+  // At 0.6: early light mode, needs slightly darker black
+  let blackL: number;
+  if (bright >= 0.3 && bright <= 0.5) {
+    // Scale from normal dark (0.3 at bright=0.3) to much lighter (0.55 at bright=0.5)
+    const t = (bright - 0.3) / 0.2; // 0→1 across 0.3–0.5
+    blackL = lerp(0.32 + contrast * 0.08, 0.55 + contrast * 0.05, t);
+  } else if (bright > 0.5 && bright <= 0.6) {
+    // Scale from slightly dark (0.42 at bright=0.51) back toward normal light (0.35 at bright=0.6)
+    const t = (bright - 0.5) / 0.1; // 0→1 across 0.5–0.6
+    blackL = lerp(0.42 - contrast * 0.06, 0.35 - contrast * 0.08, t);
+  } else {
+    blackL = isDark ? lerp(0.25, 0.35, contrast) : lerp(0.35, 0.25, contrast);
+  }
   normalColors['black'] = {
-    L: isDark ? lerp(0.25, 0.35, contrast) : lerp(0.35, 0.25, contrast),
+    L: blackL,
     C: 0.01,
     H: effectiveHue,
   };

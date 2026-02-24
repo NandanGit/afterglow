@@ -23,6 +23,7 @@ export interface AppState {
   pinnedColors: Set<ColorSlotId>;
   locks: Record<AnsiNormalSlot, boolean>;
   globalLock: boolean;
+  lockedControls: Set<keyof CustomControls>;
   customModeActive: boolean;
   activeScenario: ScenarioId;
   speed: number;
@@ -86,6 +87,7 @@ export const store = createStore<AppState>()(() => ({
   pinnedColors: new Set(),
   locks: { ...initialLocks },
   globalLock: false,
+  lockedControls: new Set(),
   customModeActive: false,
   activeScenario: 'all' as ScenarioId,
   speed: 1,
@@ -262,4 +264,15 @@ export function setCustomThemeName(name: string): void {
   store.setState({
     customTheme: { ...state.customTheme, name: name || 'Custom Theme' },
   });
+}
+
+export function toggleControlLock(key: keyof CustomControls): void {
+  const state = store.getState();
+  const newLocked = new Set(state.lockedControls);
+  if (newLocked.has(key)) {
+    newLocked.delete(key);
+  } else {
+    newLocked.add(key);
+  }
+  store.setState({ lockedControls: newLocked });
 }

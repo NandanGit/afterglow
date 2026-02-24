@@ -5,6 +5,7 @@ import {
   setCustomControl,
   setCustomThemeName,
   regeneratePalette,
+  toggleControlLock,
 } from "../store/store.ts";
 import type { CustomControls } from "../store/store.ts";
 import {
@@ -15,6 +16,8 @@ import {
   ChevronDown,
   ClipboardCopy,
   Share2,
+  Lock,
+  Unlock,
 } from "lucide";
 import type { IconNode } from "lucide";
 import { exportTheme, copyCssVars } from "../export/exporter.ts";
@@ -113,7 +116,18 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
     // Sliders
     const slidersDiv = createElement("div", { class: "custom-sliders" });
     for (const def of SLIDER_DEFS) {
+      const isLocked = state.lockedControls.has(def.key);
       const row = createElement("div", { class: "custom-slider-row" });
+
+      // Lock button (absolute-positioned to the left)
+      const lockBtn = createElement("button", {
+        class: "custom-control-lock-btn" + (isLocked ? " custom-control-lock-btn--active" : ""),
+        title: isLocked ? "Unlock (Surprise Me will randomize this)" : "Lock (Surprise Me will keep this)",
+      });
+      lockBtn.appendChild(icon((isLocked ? Lock : Unlock) as IconNode, 11));
+      lockBtn.addEventListener("click", () => toggleControlLock(def.key));
+      row.appendChild(lockBtn);
+
       row.appendChild(
         createElement("label", { class: "custom-slider-label" }, [def.label]),
       );
@@ -149,19 +163,6 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
         );
       }
 
-      // // Add Dark/Light labels for brightness slider
-      // if (isBrightness) {
-      //   const hints = document.createElement("div");
-      //   hints.className = "custom-slider-hints";
-      //   const darkHint = document.createElement("span");
-      //   darkHint.textContent = "Dark";
-      //   const lightHint = document.createElement("span");
-      //   lightHint.textContent = "Light";
-      //   hints.appendChild(darkHint);
-      //   hints.appendChild(lightHint);
-      //   row.appendChild(hints);
-      // }
-
       slidersDiv.appendChild(row);
     }
     wrapper.appendChild(slidersDiv);
@@ -174,12 +175,22 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
     surpriseBtn.appendChild(document.createTextNode(" Surprise Me"));
     surpriseBtn.addEventListener("click", () => {
       const current = store.getState();
+      const locked = current.lockedControls;
+
+      // Brightness: avoid mid-range 0.3–0.7 — pick dark (<0.3) or light (>0.7)
+      let newBrightness = current.customControls.brightness;
+      if (!locked.has("brightness")) {
+        newBrightness = Math.random() < 0.5
+          ? Math.random() * 0.3          // dark: 0–0.3
+          : 0.7 + Math.random() * 0.3;   // light: 0.7–1.0
+      }
+
       const controls: CustomControls = {
-        hue: Math.random() * 360,
-        warmth: Math.random() * 2 - 1,
-        saturation: 0.4 + Math.random() * 0.45,
-        contrast: 0.45 + Math.random() * 0.45,
-        brightness: current.customControls.brightness,
+        hue: locked.has("hue") ? current.customControls.hue : Math.random() * 360,
+        warmth: locked.has("warmth") ? current.customControls.warmth : Math.random() * 2 - 1,
+        saturation: locked.has("saturation") ? current.customControls.saturation : 0.4 + Math.random() * 0.45,
+        contrast: locked.has("contrast") ? current.customControls.contrast : 0.45 + Math.random() * 0.45,
+        brightness: newBrightness,
       };
       store.setState({ customControls: controls });
       regeneratePalette(controls);
@@ -288,7 +299,10 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
   render();
 
   const unsub = store.subscribe((state, prev) => {
-    if (state.customModeActive !== prev.customModeActive) {
+    if (
+      state.customModeActive !== prev.customModeActive ||
+      state.lockedControls !== prev.lockedControls
+    ) {
       render();
     }
   });
