@@ -3,8 +3,8 @@ import {
   enterCustomMode,
   exitCustomMode,
   setCustomControl,
-  setCustomControls,
   setCustomThemeName,
+  regeneratePalette,
 } from "../store/store.ts";
 import type { CustomControls } from "../store/store.ts";
 import {
@@ -181,7 +181,8 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
         contrast: 0.45 + Math.random() * 0.45,
         brightness: current.customControls.brightness,
       };
-      setCustomControls(controls);
+      store.setState({ customControls: controls });
+      regeneratePalette(controls);
       render();
     });
     wrapper.appendChild(surpriseBtn);

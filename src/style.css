@@ -524,6 +524,46 @@ body::before {
     opacity: 1;
 }
 
+/* === Pin Buttons === */
+.swatch-pin-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 3px;
+    color: #666;
+    cursor: pointer;
+    padding: 2px;
+    line-height: 0;
+    opacity: 0;
+    transition: opacity 0.15s ease, color 0.15s ease;
+    z-index: 2;
+}
+
+.swatch-wrapper:hover .swatch-pin-btn,
+.swatch-pin-btn--active {
+    opacity: 1;
+}
+
+.swatch-pin-btn--active {
+    color: var(--theme-accent, #6aaf96);
+}
+
+.swatch-pin-btn:hover {
+    color: #ddd;
+}
+
+.swatch-wrapper--pinned .swatch {
+    outline: 1.5px solid var(--theme-accent, #6aaf96);
+    outline-offset: 2px;
+}
+
+.swatch-wrapper--pinned .swatch--editable {
+    outline: 1.5px solid var(--theme-accent, #6aaf96);
+    outline-offset: 2px;
+}
+
 /* === Preview Panel === */
 .preview-wrapper {
     padding: 24px;

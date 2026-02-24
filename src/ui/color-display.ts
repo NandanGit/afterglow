@@ -1,5 +1,5 @@
 import { store } from "../store/store.ts";
-import { editColor, toggleLock, toggleGlobalLock } from "../store/store.ts";
+import { editColor, toggleLock, toggleGlobalLock, togglePin } from "../store/store.ts";
 import type {
   ThemeColors,
   ColorSlotId,
@@ -17,6 +17,8 @@ import {
   Unlink,
   Lock,
   Unlock,
+  Pin,
+  PinOff,
 } from "lucide";
 import type { IconNode } from "lucide";
 import { createElement, $ } from "../utils/dom.ts";
@@ -96,9 +98,10 @@ function createSwatch(
   bgHex: string,
   isCore: boolean,
   editable: boolean,
+  isPinned: boolean,
 ): HTMLElement {
   const wrapper = createElement("div", {
-    class: `swatch-wrapper ${className}`,
+    class: `swatch-wrapper ${className}${isPinned ? " swatch-wrapper--pinned" : ""}`,
   });
   const swatch = createElement("div", {
     class: "swatch" + (editable ? " swatch--editable" : ""),
@@ -154,6 +157,22 @@ function createSwatch(
   const nameEl = createElement("span", { class: "swatch-label" }, [label]);
 
   wrapper.appendChild(swatch);
+  if (editable) {
+    const pinBtn = createElement("button", {
+      class: "swatch-pin-btn" + (isPinned ? " swatch-pin-btn--active" : ""),
+      title: isPinned ? "Unpin color" : "Pin color",
+    });
+    const pinIcon = createElementLucide(
+      (isPinned ? Pin : PinOff) as IconNode,
+      { width: "10", height: "10" },
+    ) as unknown as Node;
+    pinBtn.appendChild(pinIcon);
+    pinBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      togglePin(slotId);
+    });
+    wrapper.appendChild(pinBtn);
+  }
   if (isCore) wrapper.appendChild(nameEl);
   return wrapper;
 }
@@ -182,6 +201,7 @@ function renderSwatches(container: HTMLElement, colors: ThemeColors): void {
         bgHex,
         true,
         editable,
+        state.pinnedColors.has(slot.id),
       ),
     );
   }
@@ -211,6 +231,7 @@ function renderSwatches(container: HTMLElement, colors: ThemeColors): void {
         bgHex,
         false,
         editable,
+        state.pinnedColors.has(slot.id),
       ),
     );
   }
@@ -287,6 +308,7 @@ function renderSwatches(container: HTMLElement, colors: ThemeColors): void {
         bgHex,
         false,
         editable,
+        state.pinnedColors.has(slot.id),
       ),
     );
   }
@@ -387,7 +409,8 @@ export function mountColorDisplay(container: HTMLElement): () => void {
       state.customModeActive !== prev.customModeActive ||
       state.customTheme !== prev.customTheme ||
       state.locks !== prev.locks ||
-      state.globalLock !== prev.globalLock
+      state.globalLock !== prev.globalLock ||
+      state.pinnedColors !== prev.pinnedColors
     ) {
       update();
     }
