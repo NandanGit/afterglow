@@ -863,8 +863,9 @@ body::before {
 
 .custom-name-row {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    flex-direction: row;
+    gap: 6px;
+    align-items: stretch;
 }
 
 .custom-name-label {
@@ -875,6 +876,8 @@ body::before {
 }
 
 .custom-name-input {
+    flex: 0 0 calc(50% - 4px);
+    min-width: 0;
     background: #1a1a1a;
     border: 1px solid #333;
     border-radius: 4px;
@@ -888,6 +891,20 @@ body::before {
 
 .custom-name-input:focus {
     border-color: #6aaf96;
+}
+
+.custom-name-row .custom-export-group,
+.custom-name-row .custom-copy-btn {
+    flex: 0 0 calc(25% - 4px);
+    min-width: 0;
+}
+
+.custom-name-row .custom-export-btn,
+.custom-name-row .custom-copy-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 6px 6px;
+    font-size: 0.6rem;
 }
 
 /* Sliders */
@@ -1408,15 +1425,27 @@ body::before {
 }
 
 .comparison-select {
-    background: #1a1a1a;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #1a1a1a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E") no-repeat right 8px center;
+    background-size: 8px 5px;
     border: 1px solid #333;
     border-radius: 4px;
     color: #ccc;
     font-family: "JetBrains Mono", monospace;
     font-size: 0.65rem;
-    padding: 4px 8px;
+    padding: 4px 28px 4px 8px;
     outline: none;
     cursor: pointer;
+    transition: border-color 0.15s ease;
+}
+
+.comparison-select:hover {
+    border-color: #555;
+}
+
+.comparison-select:focus {
+    border-color: #6aaf96;
 }
 
 .comparison-slider {

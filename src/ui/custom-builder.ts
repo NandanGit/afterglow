@@ -97,20 +97,70 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
     header.appendChild(discardBtn);
     wrapper.appendChild(header);
 
-    // Theme name input
+    // Theme name + export/copy row
     const nameRow = createElement("div", { class: "custom-name-row" });
-    nameRow.appendChild(
-      createElement("label", { class: "custom-name-label" }, ["Theme Name"]),
-    );
     const nameInput = createElement("input", {
       type: "text",
       class: "custom-name-input",
       value: state.customTheme.name,
+      placeholder: "Theme name",
     });
     nameInput.addEventListener("input", () =>
       setCustomThemeName(nameInput.value),
     );
     nameRow.appendChild(nameInput);
+
+    // Export split-button
+    const exportGroup = createElement("div", { class: "custom-export-group" });
+    const exportBtn = createElement("button", { class: "custom-export-btn" });
+    exportBtn.appendChild(icon(Download as IconNode, 14));
+    exportBtn.appendChild(document.createTextNode(" Export"));
+    const chevron = createElement("span", { class: "custom-export-chevron" });
+    chevron.appendChild(icon(ChevronDown as IconNode, 12));
+    exportBtn.appendChild(chevron);
+
+    const dropdown = createElement("div", {
+      class: "custom-export-dropdown",
+      style: "display:none",
+    });
+    const formats: { label: string; format: ExportFormat }[] = [
+      { label: ".terminal (macOS)", format: "terminal" },
+      { label: ".json (Raw JSON)", format: "json" },
+      { label: ".css (CSS Variables)", format: "css" },
+    ];
+    for (const { label, format } of formats) {
+      const item = createElement("button", { class: "custom-export-dropdown-item" }, [label]);
+      item.addEventListener("click", () => {
+        dropdown.style.display = "none";
+        const current = store.getState();
+        if (current.customTheme) exportTheme(current.customTheme, format);
+      });
+      dropdown.appendChild(item);
+    }
+    exportBtn.addEventListener("click", () => {
+      dropdown.style.display = dropdown.style.display === "none" ? "flex" : "none";
+    });
+    const closeDropdown = (e: MouseEvent) => {
+      if (!exportGroup.contains(e.target as Node)) {
+        dropdown.style.display = "none";
+        document.removeEventListener("click", closeDropdown);
+      }
+    };
+    exportBtn.addEventListener("click", () => {
+      setTimeout(() => document.addEventListener("click", closeDropdown), 0);
+    });
+    exportGroup.appendChild(exportBtn);
+    exportGroup.appendChild(dropdown);
+    nameRow.appendChild(exportGroup);
+
+    const copyBtn = createElement("button", { class: "custom-copy-btn" });
+    copyBtn.appendChild(icon(ClipboardCopy as IconNode, 14));
+    copyBtn.appendChild(document.createTextNode(" CSS"));
+    copyBtn.addEventListener("click", () => {
+      const current = store.getState();
+      if (current.customTheme) void copyCssVars(current.customTheme);
+    });
+    nameRow.appendChild(copyBtn);
     wrapper.appendChild(nameRow);
 
     // Sliders
@@ -197,75 +247,6 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
       render();
     });
     wrapper.appendChild(surpriseBtn);
-
-    // Export buttons
-    const exportRow = createElement("div", { class: "custom-export-row" });
-
-    // Export split-button with dropdown
-    const exportGroup = createElement("div", { class: "custom-export-group" });
-
-    const exportBtn = createElement("button", { class: "custom-export-btn" });
-    exportBtn.appendChild(icon(Download as IconNode, 14));
-    exportBtn.appendChild(document.createTextNode(" Export"));
-    const chevron = createElement("span", { class: "custom-export-chevron" });
-    chevron.appendChild(icon(ChevronDown as IconNode, 12));
-    exportBtn.appendChild(chevron);
-
-    const dropdown = createElement("div", {
-      class: "custom-export-dropdown",
-      style: "display:none",
-    });
-
-    const formats: { label: string; format: ExportFormat }[] = [
-      { label: ".terminal (macOS)", format: "terminal" },
-      { label: ".json (Raw JSON)", format: "json" },
-      { label: ".css (CSS Variables)", format: "css" },
-    ];
-
-    for (const { label, format } of formats) {
-      const item = createElement(
-        "button",
-        { class: "custom-export-dropdown-item" },
-        [label],
-      );
-      item.addEventListener("click", () => {
-        dropdown.style.display = "none";
-        const current = store.getState();
-        if (current.customTheme) exportTheme(current.customTheme, format);
-      });
-      dropdown.appendChild(item);
-    }
-
-    exportBtn.addEventListener("click", () => {
-      dropdown.style.display =
-        dropdown.style.display === "none" ? "flex" : "none";
-    });
-
-    // Close dropdown on outside click
-    const closeDropdown = (e: MouseEvent) => {
-      if (!exportGroup.contains(e.target as Node)) {
-        dropdown.style.display = "none";
-        document.removeEventListener("click", closeDropdown);
-      }
-    };
-    exportBtn.addEventListener("click", () => {
-      setTimeout(() => document.addEventListener("click", closeDropdown), 0);
-    });
-
-    exportGroup.appendChild(exportBtn);
-    exportGroup.appendChild(dropdown);
-    exportRow.appendChild(exportGroup);
-
-    const copyBtn = createElement("button", { class: "custom-copy-btn" });
-    copyBtn.appendChild(icon(ClipboardCopy as IconNode, 14));
-    copyBtn.appendChild(document.createTextNode(" Copy CSS"));
-    copyBtn.addEventListener("click", () => {
-      const current = store.getState();
-      if (current.customTheme) void copyCssVars(current.customTheme);
-    });
-    exportRow.appendChild(copyBtn);
-
-    wrapper.appendChild(exportRow);
 
     // Share button
     const shareBtn = createElement("button", { class: "custom-surprise-btn" });

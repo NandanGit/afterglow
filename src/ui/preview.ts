@@ -30,7 +30,7 @@ export function mountPreview(container: HTMLElement): () => void {
         <div class="scenario-tabs" id="scenario-tabs"></div>
         <div class="speed-controls">
           <button class="speed-btn" id="speed-down">−</button>
-          <span class="speed-display" id="speed-display">1.0x</span>
+          <span class="speed-display" id="speed-display">${store.getState().speed}x</span>
           <button class="speed-btn" id="speed-up">+</button>
           <button class="loop-btn" id="loop-btn" title="Toggle loop"></button>
           <button class="compare-btn" id="compare-btn" title="Comparison mode"></button>
