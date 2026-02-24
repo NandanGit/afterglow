@@ -100,7 +100,7 @@ body::before {
 
 .right-panel {
     min-height: 0;
-    overflow-y: auto;
+    /*overflow-y: auto;*/
 }
 
 /* === ANSI color classes === */
@@ -299,7 +299,23 @@ body::before {
 }
 
 .palette-card--active {
-    border: 1.5px dashed #6aaf96;
+    /*border: 1.5px solid #6aaf96;*/
+    /*background: linear-gradient(
+        135deg,
+        color-mix(
+                in srgb,
+                rgba(var(--theme-selection), 0.5) 100%,
+                rgb(24, 24, 24)
+            )
+            0%,
+        rgb(24, 24, 24) 70%
+    ) !important;*/
+    background: linear-gradient(
+        135deg,
+        var(--theme-selection),
+        /*color-mix(in srgb, var(--theme-selection) 100%, transparent),*/
+        rgb(24, 24, 24)
+    ) !important;
 }
 
 .card-star-btn {
@@ -428,7 +444,8 @@ body::before {
 }
 
 .swatch-ansi {
-    flex: 0 0 auto;
+    /*flex: 0 0 auto;*/
+    flex: 1;
 }
 
 /* === Swatches === */
@@ -467,8 +484,8 @@ body::before {
 }
 
 .swatch-ansi .swatch {
-    width: 32px;
-    height: 24px;
+    width: 100%;
+    height: 1.5rem;
     border-radius: 6px;
 }
 
@@ -494,7 +511,7 @@ body::before {
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.15s ease;
-    z-index: 10;
+    z-index: 100;
 }
 
 .swatch-tooltip--visible {
@@ -947,7 +964,10 @@ body::before {
     align-items: center;
     margin: 2px 0;
 }
-
+.bright-colors-header {
+    position: relative;
+    /*width: fit-content;*/
+}
 .custom-global-lock-btn {
     display: flex;
     align-items: center;
@@ -962,6 +982,10 @@ body::before {
     cursor: pointer;
     transition: all 0.15s ease;
     margin-right: 4px;
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translate(-50%, 50%);
 }
 
 .custom-global-lock-btn:hover {
@@ -970,8 +994,9 @@ body::before {
 }
 
 .custom-link-btn {
-    width: 32px;
-    height: 20px;
+    /*width: 32px;*/
+    flex: 1;
+    height: 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;

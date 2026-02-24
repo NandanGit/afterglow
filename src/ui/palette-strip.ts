@@ -1,49 +1,55 @@
-import { store } from '../store/store.ts';
-import type { Theme } from '../types/theme.ts';
-import { createElement, Star, Heart } from 'lucide';
-import type { IconNode } from 'lucide';
-import { createElement as h, $ } from '../utils/dom.ts';
+import { store } from "../store/store.ts";
+import type { Theme } from "../types/theme.ts";
+import { createElement, Star, Heart } from "lucide";
+import type { IconNode } from "lucide";
+import { createElement as h, $ } from "../utils/dom.ts";
 
 let favoritesFilterActive = false;
 
 function createStarIcon(filled: boolean): SVGElement {
   const attrs: Record<string, string> = {
-    width: '16',
-    height: '16',
-    class: 'star-icon' + (filled ? ' star-filled' : ''),
+    width: "16",
+    height: "16",
+    class: "star-icon" + (filled ? " star-filled" : ""),
   };
   if (filled) {
-    attrs['fill'] = 'currentColor';
+    attrs["fill"] = "currentColor";
   }
   return createElement(Star as IconNode, attrs) as unknown as SVGElement;
 }
 
 function createColorDots(theme: Theme): HTMLElement {
-  const row = h('div', { class: 'card-dots' });
-  const slots = ['red', 'green', 'yellow', 'blue', 'magenta', 'cyan'] as const;
+  const row = h("div", { class: "card-dots" });
+  const slots = ["red", "green", "yellow", "blue", "magenta", "cyan"] as const;
   for (const slot of slots) {
-    const dot = h('span', { class: 'card-dot' });
+    const dot = h("span", { class: "card-dot" });
     dot.style.backgroundColor = theme.colors[slot];
     row.appendChild(dot);
   }
   return row;
 }
 
-function createCard(theme: Theme, isActive: boolean, isFav: boolean): HTMLElement {
-  const card = h('div', { class: 'palette-card' + (isActive ? ' palette-card--active' : '') });
+function createCard(
+  theme: Theme,
+  isActive: boolean,
+  isFav: boolean,
+): HTMLElement {
+  const card = h("div", {
+    class: "palette-card" + (isActive ? " palette-card--active" : ""),
+  });
   card.dataset.themeId = theme.id;
 
   const accent = theme.colors.selection;
-  card.style.background = `linear-gradient(135deg, color-mix(in srgb, ${accent} 55%, #181818) 0%, #181818 70%)`;
+  card.style.background = `linear-gradient(135deg, color-mix(in srgb, ${accent} 10%, #181818) 0%, #181818 70%)`;
   card.style.borderColor = `color-mix(in srgb, ${accent} 35%, #2a2a2a)`;
 
-  const starBtn = h('button', {
-    class: 'card-star-btn',
-    type: 'button',
-    title: isFav ? 'Remove from favorites' : 'Add to favorites',
+  const starBtn = h("button", {
+    class: "card-star-btn",
+    type: "button",
+    title: isFav ? "Remove from favorites" : "Add to favorites",
   });
   starBtn.appendChild(createStarIcon(isFav));
-  starBtn.addEventListener('click', (e) => {
+  starBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     const state = store.getState();
     const newFavs = new Set(state.favorites);
@@ -57,7 +63,7 @@ function createCard(theme: Theme, isActive: boolean, isFav: boolean): HTMLElemen
 
   const dots = createColorDots(theme);
 
-  const info = h('div', { class: 'card-info' });
+  const info = h("div", { class: "card-info" });
   info.innerHTML = `
     <span class="card-emoji">${theme.emoji}</span>
     <span class="card-name">${theme.name}</span>
@@ -68,7 +74,7 @@ function createCard(theme: Theme, isActive: boolean, isFav: boolean): HTMLElemen
   card.appendChild(dots);
   card.appendChild(info);
 
-  card.addEventListener('click', () => {
+  card.addEventListener("click", () => {
     store.setState({ activeThemeId: theme.id });
   });
 
@@ -95,59 +101,81 @@ export function mountPaletteStrip(container: HTMLElement): () => void {
     </div>
   `;
 
-  const scroll = $('#palette-scroll', container) as HTMLElement;
-  const communityEmpty = $('#community-empty', container) as HTMLElement;
-  const tabs = container.querySelectorAll<HTMLButtonElement>('.palette-tab');
+  const scroll = $("#palette-scroll", container) as HTMLElement;
+  const communityEmpty = $("#community-empty", container) as HTMLElement;
+  const tabs = container.querySelectorAll<HTMLButtonElement>(".palette-tab");
 
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      const tabName = tab.dataset.tab as 'handcrafted' | 'community';
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const tabName = tab.dataset.tab as "handcrafted" | "community";
       store.setState({ activeTab: tabName });
-      tabs.forEach(t => t.classList.toggle('palette-tab--active', t === tab));
+      tabs.forEach((t) => t.classList.toggle("palette-tab--active", t === tab));
     });
   });
 
-  const favBtn = $('#favorites-filter-btn', container) as HTMLButtonElement;
-  const heartIcon = createElement(Heart as IconNode, { width: '14', height: '14' }) as unknown as Node;
+  const favBtn = $("#favorites-filter-btn", container) as HTMLButtonElement;
+  const heartIcon = createElement(Heart as IconNode, {
+    width: "14",
+    height: "14",
+  }) as unknown as Node;
   favBtn.appendChild(heartIcon);
-  favBtn.appendChild(document.createTextNode(' Favorites'));
-  favBtn.addEventListener('click', () => {
+  favBtn.appendChild(document.createTextNode(" Favorites"));
+  favBtn.addEventListener("click", () => {
     favoritesFilterActive = !favoritesFilterActive;
-    favBtn.classList.toggle('favorites-filter-btn--active', favoritesFilterActive);
+    favBtn.classList.toggle(
+      "favorites-filter-btn--active",
+      favoritesFilterActive,
+    );
     render();
   });
 
   function render(): void {
-    const { themes, activeThemeId, favorites, activeTab, searchQuery } = store.getState();
-    if (activeTab === 'community') {
-      scroll.style.display = 'none';
-      communityEmpty.style.display = 'flex';
+    const { themes, activeThemeId, favorites, activeTab, searchQuery } =
+      store.getState();
+    if (activeTab === "community") {
+      scroll.style.display = "none";
+      communityEmpty.style.display = "flex";
       return;
     }
-    scroll.style.display = 'flex';
-    communityEmpty.style.display = 'none';
-    scroll.innerHTML = '';
+    scroll.style.display = "flex";
+    communityEmpty.style.display = "none";
+    scroll.innerHTML = "";
 
     const query = searchQuery.toLowerCase();
 
     for (const [, theme] of themes) {
-      if (theme.source !== 'bundled') continue;
+      if (theme.source !== "bundled") continue;
 
       // Search filter
-      if (query && !theme.name.toLowerCase().includes(query) && !theme.subtitle.toLowerCase().includes(query)) continue;
+      if (
+        query &&
+        !theme.name.toLowerCase().includes(query) &&
+        !theme.subtitle.toLowerCase().includes(query)
+      )
+        continue;
 
       // Favorites filter
       if (favoritesFilterActive && !favorites.has(theme.id)) continue;
 
-      const card = createCard(theme, theme.id === activeThemeId, favorites.has(theme.id));
+      const card = createCard(
+        theme,
+        theme.id === activeThemeId,
+        favorites.has(theme.id),
+      );
       scroll.appendChild(card);
     }
 
     // Show empty state for favorites filter
     if (favoritesFilterActive && scroll.children.length === 0) {
-      const empty = h('div', { class: 'community-empty', style: 'width:100%' }, [
-        h('p', { class: 'community-empty-text' }, ['No favorites yet — click ★ on any theme']),
-      ]);
+      const empty = h(
+        "div",
+        { class: "community-empty", style: "width:100%" },
+        [
+          h("p", { class: "community-empty-text" }, [
+            "No favorites yet — click ★ on any theme",
+          ]),
+        ],
+      );
       scroll.appendChild(empty);
     }
   }
