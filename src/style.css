@@ -298,6 +298,12 @@ body::before {
     filter: brightness(1.15);
 }
 
+.palette-card--disabled {
+    pointer-events: none;
+    opacity: 0.4;
+    cursor: default;
+}
+
 .palette-card--active {
     /*border: 1.5px solid #6aaf96;*/
     /*background: linear-gradient(

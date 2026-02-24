@@ -1,8 +1,8 @@
 import { store } from "../store/store.ts";
 import type { Theme } from "../types/theme.ts";
-import { createElement, Star, Heart } from "lucide";
+import { createElement as createLucideElement, Star, Heart } from "lucide";
 import type { IconNode } from "lucide";
-import { createElement as h, $ } from "../utils/dom.ts";
+import { createElement, $ } from "../utils/dom.ts";
 
 let favoritesFilterActive = false;
 
@@ -15,14 +15,14 @@ function createStarIcon(filled: boolean): SVGElement {
   if (filled) {
     attrs["fill"] = "currentColor";
   }
-  return createElement(Star as IconNode, attrs) as unknown as SVGElement;
+  return createLucideElement(Star as IconNode, attrs) as unknown as SVGElement;
 }
 
 function createColorDots(theme: Theme): HTMLElement {
-  const row = h("div", { class: "card-dots" });
+  const row = createElement("div", { class: "card-dots" });
   const slots = ["red", "green", "yellow", "blue", "magenta", "cyan"] as const;
   for (const slot of slots) {
-    const dot = h("span", { class: "card-dot" });
+    const dot = createElement("span", { class: "card-dot" });
     dot.style.backgroundColor = theme.colors[slot];
     row.appendChild(dot);
   }
@@ -33,9 +33,13 @@ function createCard(
   theme: Theme,
   isActive: boolean,
   isFav: boolean,
+  isDisabled: boolean,
 ): HTMLElement {
-  const card = h("div", {
-    class: "palette-card" + (isActive ? " palette-card--active" : ""),
+  const card = createElement("div", {
+    class:
+      "palette-card" +
+      (isActive ? " palette-card--active" : "") +
+      (isDisabled ? " palette-card--disabled" : ""),
   });
   card.dataset.themeId = theme.id;
 
@@ -43,7 +47,7 @@ function createCard(
   card.style.background = `linear-gradient(135deg, color-mix(in srgb, ${accent} 10%, #181818) 0%, #181818 70%)`;
   card.style.borderColor = `color-mix(in srgb, ${accent} 35%, #2a2a2a)`;
 
-  const starBtn = h("button", {
+  const starBtn = createElement("button", {
     class: "card-star-btn",
     type: "button",
     title: isFav ? "Remove from favorites" : "Add to favorites",
@@ -63,7 +67,7 @@ function createCard(
 
   const dots = createColorDots(theme);
 
-  const info = h("div", { class: "card-info" });
+  const info = createElement("div", { class: "card-info" });
   info.innerHTML = `
     <span class="card-emoji">${theme.emoji}</span>
     <span class="card-name">${theme.name}</span>
@@ -75,6 +79,7 @@ function createCard(
   card.appendChild(info);
 
   card.addEventListener("click", () => {
+    if (isDisabled) return;
     store.setState({ activeThemeId: theme.id });
   });
 
@@ -114,7 +119,7 @@ export function mountPaletteStrip(container: HTMLElement): () => void {
   });
 
   const favBtn = $("#favorites-filter-btn", container) as HTMLButtonElement;
-  const heartIcon = createElement(Heart as IconNode, {
+  const heartIcon = createLucideElement(Heart as IconNode, {
     width: "14",
     height: "14",
   }) as unknown as Node;
@@ -130,8 +135,14 @@ export function mountPaletteStrip(container: HTMLElement): () => void {
   });
 
   function render(): void {
-    const { themes, activeThemeId, favorites, activeTab, searchQuery } =
-      store.getState();
+    const {
+      themes,
+      activeThemeId,
+      favorites,
+      activeTab,
+      searchQuery,
+      customModeActive,
+    } = store.getState();
     if (activeTab === "community") {
       scroll.style.display = "none";
       communityEmpty.style.display = "flex";
@@ -159,19 +170,20 @@ export function mountPaletteStrip(container: HTMLElement): () => void {
 
       const card = createCard(
         theme,
-        theme.id === activeThemeId,
+        !customModeActive && theme.id === activeThemeId,
         favorites.has(theme.id),
+        customModeActive,
       );
       scroll.appendChild(card);
     }
 
     // Show empty state for favorites filter
     if (favoritesFilterActive && scroll.children.length === 0) {
-      const empty = h(
+      const empty = createElement(
         "div",
         { class: "community-empty", style: "width:100%" },
         [
-          h("p", { class: "community-empty-text" }, [
+          createElement("p", { class: "community-empty-text" }, [
             "No favorites yet — click ★ on any theme",
           ]),
         ],
@@ -187,7 +199,8 @@ export function mountPaletteStrip(container: HTMLElement): () => void {
       state.favorites !== prev.favorites ||
       state.themes !== prev.themes ||
       state.activeTab !== prev.activeTab ||
-      state.searchQuery !== prev.searchQuery
+      state.searchQuery !== prev.searchQuery ||
+      state.customModeActive !== prev.customModeActive
     ) {
       render();
     }

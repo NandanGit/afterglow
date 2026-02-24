@@ -1,22 +1,26 @@
-import { store } from '../store/store.ts';
-import type { ScenarioId } from '../store/store.ts';
-import { SimulatorEngine } from '../simulator/engine.ts';
-import { TerminalRenderer } from '../simulator/renderer.ts';
-import { scenarios } from '../simulator/scenarios/index.ts';
-import { createElement, RotateCw, Columns2 } from 'lucide';
-import type { IconNode } from 'lucide';
-import { createElement as h, $ } from '../utils/dom.ts';
+import { store } from "../store/store.ts";
+import type { ScenarioId } from "../store/store.ts";
+import { SimulatorEngine } from "../simulator/engine.ts";
+import { TerminalRenderer } from "../simulator/renderer.ts";
+import { scenarios } from "../simulator/scenarios/index.ts";
+import {
+  createElement as createLucideElement,
+  RotateCw,
+  Columns2,
+} from "lucide";
+import type { IconNode } from "lucide";
+import { createElement, $ } from "../utils/dom.ts";
 
 const SCENARIO_TABS: { id: ScenarioId; label: string }[] = [
-  { id: 'all', label: 'ALL' },
-  { id: 'git', label: 'GIT' },
-  { id: 'python', label: 'PYTHON' },
-  { id: 'logs', label: 'LOGS' },
-  { id: 'system', label: 'SYSTEM' },
-  { id: 'docker', label: 'DOCKER' },
-  { id: 'files', label: 'FILES' },
-  { id: 'build', label: 'BUILD' },
-  { id: 'ssh', label: 'SSH' },
+  { id: "all", label: "ALL" },
+  { id: "git", label: "GIT" },
+  { id: "python", label: "PYTHON" },
+  { id: "logs", label: "LOGS" },
+  { id: "system", label: "SYSTEM" },
+  { id: "docker", label: "DOCKER" },
+  { id: "files", label: "FILES" },
+  { id: "build", label: "BUILD" },
+  { id: "ssh", label: "SSH" },
 ];
 
 export function mountPreview(container: HTMLElement): () => void {
@@ -47,14 +51,14 @@ export function mountPreview(container: HTMLElement): () => void {
   `;
 
   // Elements
-  const tabsEl = $('#scenario-tabs', container) as HTMLElement;
-  const speedDisplay = $('#speed-display', container) as HTMLElement;
-  const speedDown = $('#speed-down', container) as HTMLElement;
-  const speedUp = $('#speed-up', container) as HTMLElement;
-  const loopBtn = $('#loop-btn', container) as HTMLElement;
-  const compareBtn = $('#compare-btn', container) as HTMLElement;
-  const titleEl = $('#terminal-title', container) as HTMLElement;
-  const contentEl = $('#terminal-content', container) as HTMLElement;
+  const tabsEl = $("#scenario-tabs", container) as HTMLElement;
+  const speedDisplay = $("#speed-display", container) as HTMLElement;
+  const speedDown = $("#speed-down", container) as HTMLElement;
+  const speedUp = $("#speed-up", container) as HTMLElement;
+  const loopBtn = $("#loop-btn", container) as HTMLElement;
+  const compareBtn = $("#compare-btn", container) as HTMLElement;
+  const titleEl = $("#terminal-title", container) as HTMLElement;
+  const contentEl = $("#terminal-content", container) as HTMLElement;
 
   // Renderer & Engine
   const renderer = new TerminalRenderer(contentEl);
@@ -75,12 +79,18 @@ export function mountPreview(container: HTMLElement): () => void {
   // Build scenario tabs
   function renderTabs(): void {
     const activeScenario = store.getState().activeScenario;
-    tabsEl.innerHTML = '';
+    tabsEl.innerHTML = "";
     for (const tab of SCENARIO_TABS) {
-      const btn = h('button', {
-        class: 'scenario-tab' + (tab.id === activeScenario ? ' scenario-tab--active' : ''),
-      }, [tab.label]);
-      btn.addEventListener('click', () => {
+      const btn = createElement(
+        "button",
+        {
+          class:
+            "scenario-tab" +
+            (tab.id === activeScenario ? " scenario-tab--active" : ""),
+        },
+        [tab.label],
+      );
+      btn.addEventListener("click", () => {
         store.setState({ activeScenario: tab.id });
       });
       tabsEl.appendChild(btn);
@@ -90,19 +100,22 @@ export function mountPreview(container: HTMLElement): () => void {
   // Icons for loop and compare buttons
   function renderLoopBtn(): void {
     const { looping } = store.getState();
-    loopBtn.innerHTML = '';
-    const icon = createElement(RotateCw as IconNode, {
-      width: '16', height: '16',
-      class: looping ? 'icon-active' : 'icon-dim',
+    loopBtn.innerHTML = "";
+    const icon = createLucideElement(RotateCw as IconNode, {
+      width: "16",
+      height: "16",
+      class: looping ? "icon-active" : "icon-dim",
     });
     loopBtn.appendChild(icon as unknown as Node);
   }
 
   function renderCompareBtn(): void {
     const { comparisonEnabled } = store.getState();
-    compareBtn.innerHTML = '';
-    const icon = createElement(Columns2 as IconNode, {
-      width: '16', height: '16', class: comparisonEnabled ? 'icon-active' : 'icon-dim',
+    compareBtn.innerHTML = "";
+    const icon = createLucideElement(Columns2 as IconNode, {
+      width: "16",
+      height: "16",
+      class: comparisonEnabled ? "icon-active" : "icon-dim",
     });
     compareBtn.appendChild(icon as unknown as Node);
   }
@@ -125,25 +138,25 @@ export function mountPreview(container: HTMLElement): () => void {
   loadScenario(store.getState().activeScenario);
 
   // Speed controls
-  speedDown.addEventListener('click', () => {
+  speedDown.addEventListener("click", () => {
     const current = store.getState().speed;
     const newSpeed = Math.max(0, Math.round((current - 0.1) * 10) / 10);
     store.setState({ speed: newSpeed });
   });
-  speedUp.addEventListener('click', () => {
+  speedUp.addEventListener("click", () => {
     const current = store.getState().speed;
     const newSpeed = Math.min(3, Math.round((current + 0.1) * 10) / 10);
     store.setState({ speed: newSpeed });
   });
 
   // Loop toggle
-  loopBtn.addEventListener('click', () => {
+  loopBtn.addEventListener("click", () => {
     const current = store.getState().looping;
     store.setState({ looping: !current });
   });
 
   // Compare toggle
-  compareBtn.addEventListener('click', () => {
+  compareBtn.addEventListener("click", () => {
     const state = store.getState();
     if (!state.comparisonEnabled) {
       // Default comparison theme to the next theme in list
@@ -163,7 +176,7 @@ export function mountPreview(container: HTMLElement): () => void {
       loadScenario(state.activeScenario);
     }
     if (state.speed !== prev.speed) {
-      speedDisplay.textContent = state.speed.toFixed(1) + 'x';
+      speedDisplay.textContent = state.speed.toFixed(1) + "x";
       engine.setSpeed(state.speed);
     }
     if (state.looping !== prev.looping) {
