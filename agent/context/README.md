@@ -1,8 +1,6 @@
 # Afterglow — LLM Context
 
-> **Load this file at the start of every session.** It gives you the project overview and tells you which context files to read for your task.
-
-## What Is This?
+## What Is This Project?
 
 A browser-based **Terminal Theme Builder** — browse 16 handcrafted themes, preview with animated terminal simulations, build custom themes from a single hue, export to macOS `.terminal` / JSON / CSS.
 
