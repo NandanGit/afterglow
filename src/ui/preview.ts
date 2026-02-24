@@ -171,6 +171,9 @@ export function mountPreview(container: HTMLElement): () => void {
     }
     if (state.comparisonEnabled !== prev.comparisonEnabled) {
       renderCompareBtn();
+      if (state.comparisonEnabled) {
+        loadScenario(state.activeScenario);
+      }
     }
     if (state.fontSize !== prev.fontSize) {
       renderer.setFontSize(state.fontSize);

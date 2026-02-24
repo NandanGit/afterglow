@@ -25,9 +25,7 @@ app.innerHTML = `
     <div class="palette-search-area" id="search-area"></div>
   </section>
   <main class="main-content">
-    <div class="preview-panel" id="preview">
-      <div id="comparison-container"></div>
-    </div>
+    <div class="preview-panel" id="preview"></div>
     <div class="right-panel" id="right-panel">
       <div class="color-display" id="color-display"></div>
       <div class="custom-builder" id="custom-builder"></div>
@@ -108,7 +106,7 @@ mountPaletteStrip(document.getElementById("palette")!);
 mountColorDisplay(document.getElementById("color-display")!);
 mountPreview(document.getElementById("preview")!);
 mountCustomBuilder(document.getElementById("custom-builder")!);
-mountComparison(document.getElementById("comparison-container")!);
+mountComparison(document.getElementById("preview")!);
 mountFontControls(document.getElementById("font-controls")!);
 
 // --- Keyboard shortcuts ---

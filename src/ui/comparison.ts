@@ -1,107 +1,116 @@
-import { store } from '../store/store.ts';
-import type { Theme } from '../types/theme.ts';
-import { SimulatorEngine } from '../simulator/engine.ts';
-import { TerminalRenderer } from '../simulator/renderer.ts';
-import { scenarios } from '../simulator/scenarios/index.ts';
+import { store } from "../store/store.ts";
+import type { Theme } from "../types/theme.ts";
+import { SimulatorEngine } from "../simulator/engine.ts";
+import { TerminalRenderer } from "../simulator/renderer.ts";
+import { scenarios } from "../simulator/scenarios/index.ts";
+import { createElement } from "../utils/dom.ts";
 
-export function mountComparison(container: HTMLElement): () => void {
-  let rendererA: TerminalRenderer | null = null;
+export function mountComparison(previewPanel: HTMLElement): () => void {
   let rendererB: TerminalRenderer | null = null;
-  let engine: SimulatorEngine | null = null;
+  let engineB: SimulatorEngine | null = null;
+  let wrapperEl: HTMLElement | null = null;
+  let overlayEl: HTMLElement | null = null;
+  let sliderEl: HTMLElement | null = null;
+  let selectorEl: HTMLElement | null = null;
+  let originalTerminal: HTMLElement | null = null;
   let isDragging = false;
+  let removeDocListeners: (() => void) | null = null;
 
   function applyThemeVarsToEl(el: HTMLElement, theme: Theme): void {
     for (const [key, value] of Object.entries(theme.colors)) {
-      const cssVar = `--theme-${key.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase())}`;
+      const cssVar = `--theme-${key.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase())}`;
       el.style.setProperty(cssVar, value);
     }
   }
 
-  function render(): void {
+  function rebuildSelector(): void {
+    if (!selectorEl) return;
+    const select = selectorEl.querySelector("select") as HTMLSelectElement;
+    if (!select) return;
     const state = store.getState();
-    container.innerHTML = '';
-
-    if (!state.comparisonEnabled) return;
-
-    container.className = 'comparison-container';
-
-    // Theme selector
-    const selector = document.createElement('div');
-    selector.className = 'comparison-selector';
-    const label = document.createElement('span');
-    label.className = 'comparison-label';
-    label.textContent = 'Compare with:';
-    selector.appendChild(label);
-
-    const select = document.createElement('select');
-    select.className = 'comparison-select';
+    select.innerHTML = "";
     for (const [id, theme] of state.themes) {
       if (id === state.activeThemeId) continue;
-      const opt = document.createElement('option');
+      const opt = document.createElement("option");
       opt.value = id;
       opt.textContent = theme.name;
       if (id === state.comparisonThemeId) opt.selected = true;
       select.appendChild(opt);
     }
-    select.addEventListener('change', () => {
-      store.setState({ comparisonThemeId: select.value });
-    });
-    selector.appendChild(select);
-    container.appendChild(selector);
+  }
 
-    // Comparison viewport
-    const viewport = document.createElement('div');
-    viewport.className = 'comparison-viewport';
+  function render(): void {
+    cleanup();
+    const state = store.getState();
+    if (!state.comparisonEnabled) return;
 
-    // Side A (active theme)
-    const sideA = document.createElement('div');
-    sideA.className = 'comparison-side comparison-side-a';
-    const terminalA = createTerminalWindow();
-    sideA.appendChild(terminalA.window);
+    // Find the existing terminal window
+    originalTerminal = previewPanel.querySelector(
+      ".terminal-window",
+    ) as HTMLElement;
+    if (!originalTerminal) return;
+    const parent = originalTerminal.parentElement!;
 
-    // Side B (comparison theme — clipped)
-    const sideB = document.createElement('div');
-    sideB.className = 'comparison-side comparison-side-b';
-    const terminalB = createTerminalWindow();
-    sideB.appendChild(terminalB.window);
+    // Wrap terminal window in a comparison wrapper
+    wrapperEl = document.createElement("div");
+    wrapperEl.className = "comparison-wrapper";
+    parent.insertBefore(wrapperEl, originalTerminal);
+    wrapperEl.appendChild(originalTerminal);
 
-    // Apply themes
-    const activeTheme = state.customModeActive && state.customTheme
-      ? state.customTheme
-      : state.themes.get(state.activeThemeId);
+    // Create overlay terminal window
+    overlayEl = document.createElement("div");
+    overlayEl.className = "terminal-window comparison-overlay";
+
+    const titlebar = document.createElement("div");
+    titlebar.className = "terminal-titlebar";
+    const dots = document.createElement("div");
+    dots.className = "terminal-dots";
+    dots.innerHTML =
+      '<span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>';
+    titlebar.appendChild(dots);
+    const title = createElement("span", { class: "terminal-title" }, [
+      "Comparison",
+    ]);
+    titlebar.appendChild(title);
+    overlayEl.appendChild(titlebar);
+
+    const contentEl = document.createElement("div");
+    contentEl.className = "terminal-content";
+    overlayEl.appendChild(contentEl);
+
+    // Apply comparison theme CSS vars to overlay
     const compTheme = state.comparisonThemeId
       ? state.themes.get(state.comparisonThemeId)
       : null;
+    if (compTheme) applyThemeVarsToEl(overlayEl, compTheme);
 
-    if (activeTheme) applyThemeVarsToEl(sideA, activeTheme);
-    if (compTheme) applyThemeVarsToEl(sideB, compTheme);
+    wrapperEl.appendChild(overlayEl);
 
-    // Slider bar
-    const slider = document.createElement('div');
-    slider.className = 'comparison-slider';
-
-    viewport.appendChild(sideA);
-    viewport.appendChild(sideB);
-    viewport.appendChild(slider);
-    container.appendChild(viewport);
+    // Create slider
+    sliderEl = document.createElement("div");
+    sliderEl.className = "comparison-slider";
+    wrapperEl.appendChild(sliderEl);
 
     // Set initial clip position
     const updateClip = (pct: number) => {
-      sideB.style.clipPath = `inset(0 0 0 ${pct}%)`;
-      slider.style.left = `${pct}%`;
+      overlayEl!.style.clipPath = `inset(0 0 0 ${pct}%)`;
+      sliderEl!.style.left = `${pct}%`;
     };
     updateClip(state.sliderPosition);
 
     // Drag handling
     const onPointerDown = (e: PointerEvent) => {
       isDragging = true;
-      slider.setPointerCapture(e.pointerId);
+      sliderEl!.setPointerCapture(e.pointerId);
       e.preventDefault();
     };
     const onPointerMove = (e: PointerEvent) => {
       if (!isDragging) return;
-      const rect = viewport.getBoundingClientRect();
-      const pct = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+      const rect = wrapperEl!.getBoundingClientRect();
+      const pct = Math.max(
+        0,
+        Math.min(100, ((e.clientX - rect.left) / rect.width) * 100),
+      );
       updateClip(pct);
       store.setState({ sliderPosition: pct });
     };
@@ -109,67 +118,138 @@ export function mountComparison(container: HTMLElement): () => void {
       isDragging = false;
     };
 
-    slider.addEventListener('pointerdown', onPointerDown);
-    document.addEventListener('pointermove', onPointerMove);
-    document.addEventListener('pointerup', onPointerUp);
+    sliderEl.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("pointermove", onPointerMove);
+    document.addEventListener("pointerup", onPointerUp);
+    removeDocListeners = () => {
+      document.removeEventListener("pointermove", onPointerMove);
+      document.removeEventListener("pointerup", onPointerUp);
+    };
 
-    // Set up renderers and engine
-    rendererA = new TerminalRenderer(terminalA.content);
-    rendererB = new TerminalRenderer(terminalB.content);
+    // Add comparison selector to speed controls
+    const controlsArea = previewPanel.querySelector(".speed-controls");
+    if (controlsArea) {
+      selectorEl = document.createElement("div");
+      selectorEl.className = "comparison-selector";
+      const select = document.createElement("select");
+      select.className = "comparison-select";
+      for (const [id, theme] of state.themes) {
+        if (id === state.activeThemeId) continue;
+        const opt = document.createElement("option");
+        opt.value = id;
+        opt.textContent = theme.name;
+        if (id === state.comparisonThemeId) opt.selected = true;
+        select.appendChild(opt);
+      }
+      select.addEventListener("change", () => {
+        store.setState({ comparisonThemeId: select.value });
+      });
+      selectorEl.appendChild(select);
+      controlsArea.appendChild(selectorEl);
+    }
 
-    engine = new SimulatorEngine({
-      onPrompt: (prompt) => { rendererA?.showPrompt(prompt); rendererB?.showPrompt(prompt); },
-      onTypeChar: (char) => { rendererA?.typeChar(char); rendererB?.typeChar(char); },
-      onOutputLine: (event) => { rendererA?.outputLine(event); rendererB?.outputLine(event); },
-      onComplete: () => { rendererA?.showIdleCursor(); rendererB?.showIdleCursor(); },
-      onClear: () => { rendererA?.clear(); rendererB?.clear(); },
-      onFinishCommand: () => { rendererA?.finishCommand(); rendererB?.finishCommand(); },
+    // Set up renderer and engine for overlay
+    rendererB = new TerminalRenderer(contentEl);
+    rendererB.setFontSize(state.fontSize);
+    rendererB.setFontFamily(state.fontFamily);
+
+    engineB = new SimulatorEngine({
+      onPrompt: (prompt) => rendererB?.showPrompt(prompt),
+      onTypeChar: (char) => rendererB?.typeChar(char),
+      onOutputLine: (event) => rendererB?.outputLine(event),
+      onComplete: () => rendererB?.showIdleCursor(),
+      onClear: () => rendererB?.clear(),
+      onFinishCommand: () => rendererB?.finishCommand(),
     });
 
     const scenario = scenarios[state.activeScenario];
-    engine.load(scenario);
-    engine.setSpeed(state.speed);
-    engine.setLooping(state.looping);
-    engine.play();
-  }
-
-  function createTerminalWindow(): { window: HTMLElement; content: HTMLElement } {
-    const win = document.createElement('div');
-    win.className = 'terminal-window';
-    win.style.userSelect = 'none';
-
-    const titlebar = document.createElement('div');
-    titlebar.className = 'terminal-titlebar';
-    const dots = document.createElement('div');
-    dots.className = 'terminal-dots';
-    dots.innerHTML = '<span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>';
-    titlebar.appendChild(dots);
-    win.appendChild(titlebar);
-
-    const content = document.createElement('div');
-    content.className = 'terminal-content';
-    win.appendChild(content);
-
-    return { window: win, content };
+    engineB.load(scenario);
+    engineB.setSpeed(state.speed);
+    engineB.setLooping(state.looping);
+    engineB.play();
   }
 
   function cleanup(): void {
-    if (engine) { engine.destroy(); engine = null; }
-    if (rendererA) { rendererA.destroy(); rendererA = null; }
-    if (rendererB) { rendererB.destroy(); rendererB = null; }
+    if (removeDocListeners) {
+      removeDocListeners();
+      removeDocListeners = null;
+    }
+    if (engineB) {
+      engineB.destroy();
+      engineB = null;
+    }
+    if (rendererB) {
+      rendererB.destroy();
+      rendererB = null;
+    }
+
+    // Remove selector from controls
+    if (selectorEl) {
+      selectorEl.remove();
+      selectorEl = null;
+    }
+
+    // Unwrap terminal window back to its original parent
+    if (wrapperEl && originalTerminal && wrapperEl.parentElement) {
+      wrapperEl.parentElement.insertBefore(originalTerminal, wrapperEl);
+      wrapperEl.remove();
+    }
+
+    wrapperEl = null;
+    overlayEl = null;
+    sliderEl = null;
+    originalTerminal = null;
+    isDragging = false;
   }
 
   render();
 
   const unsub = store.subscribe((state, prev) => {
-    if (
-      state.comparisonEnabled !== prev.comparisonEnabled ||
-      state.comparisonThemeId !== prev.comparisonThemeId ||
-      state.activeThemeId !== prev.activeThemeId
-    ) {
+    // Toggle comparison on/off: full setup/teardown
+    if (state.comparisonEnabled !== prev.comparisonEnabled) {
       cleanup();
       render();
+      return;
     }
+
+    if (!state.comparisonEnabled) return;
+
+    // Comparison theme changed: re-apply CSS vars
+    if (state.comparisonThemeId !== prev.comparisonThemeId && overlayEl) {
+      const compTheme = state.comparisonThemeId
+        ? state.themes.get(state.comparisonThemeId)
+        : null;
+      if (compTheme) applyThemeVarsToEl(overlayEl, compTheme);
+    }
+
+    // Active theme or custom mode changed: rebuild selector options
+    if (
+      state.activeThemeId !== prev.activeThemeId ||
+      state.customModeActive !== prev.customModeActive
+    ) {
+      rebuildSelector();
+    }
+
+    // Scenario changed: reload overlay engine
+    if (state.activeScenario !== prev.activeScenario && engineB && rendererB) {
+      rendererB.clear();
+      const scenario = scenarios[state.activeScenario];
+      engineB.load(scenario);
+      engineB.setSpeed(state.speed);
+      engineB.setLooping(state.looping);
+      engineB.play();
+    }
+
+    // Engine settings
+    if (state.speed !== prev.speed && engineB) engineB.setSpeed(state.speed);
+    if (state.looping !== prev.looping && engineB)
+      engineB.setLooping(state.looping);
+
+    // Font settings
+    if (state.fontSize !== prev.fontSize && rendererB)
+      rendererB.setFontSize(state.fontSize);
+    if (state.fontFamily !== prev.fontFamily && rendererB)
+      rendererB.setFontFamily(state.fontFamily);
   });
 
   return () => {
