@@ -2,6 +2,7 @@ import { store } from '../store/store.ts';
 import type { Theme } from '../types/theme.ts';
 import { createElement, Star, Heart } from 'lucide';
 import type { IconNode } from 'lucide';
+import { createElement as h, $ } from '../utils/dom.ts';
 
 let favoritesFilterActive = false;
 
@@ -18,12 +19,10 @@ function createStarIcon(filled: boolean): SVGElement {
 }
 
 function createColorDots(theme: Theme): HTMLElement {
-  const row = document.createElement('div');
-  row.className = 'card-dots';
+  const row = h('div', { class: 'card-dots' });
   const slots = ['red', 'green', 'yellow', 'blue', 'magenta', 'cyan'] as const;
   for (const slot of slots) {
-    const dot = document.createElement('span');
-    dot.className = 'card-dot';
+    const dot = h('span', { class: 'card-dot' });
     dot.style.backgroundColor = theme.colors[slot];
     row.appendChild(dot);
   }
@@ -31,18 +30,18 @@ function createColorDots(theme: Theme): HTMLElement {
 }
 
 function createCard(theme: Theme, isActive: boolean, isFav: boolean): HTMLElement {
-  const card = document.createElement('div');
-  card.className = 'palette-card' + (isActive ? ' palette-card--active' : '');
+  const card = h('div', { class: 'palette-card' + (isActive ? ' palette-card--active' : '') });
   card.dataset.themeId = theme.id;
 
   const accent = theme.colors.selection;
   card.style.background = `linear-gradient(135deg, color-mix(in srgb, ${accent} 55%, #181818) 0%, #181818 70%)`;
   card.style.borderColor = `color-mix(in srgb, ${accent} 35%, #2a2a2a)`;
 
-  const starBtn = document.createElement('button');
-  starBtn.className = 'card-star-btn';
-  starBtn.type = 'button';
-  starBtn.title = isFav ? 'Remove from favorites' : 'Add to favorites';
+  const starBtn = h('button', {
+    class: 'card-star-btn',
+    type: 'button',
+    title: isFav ? 'Remove from favorites' : 'Add to favorites',
+  });
   starBtn.appendChild(createStarIcon(isFav));
   starBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -58,8 +57,7 @@ function createCard(theme: Theme, isActive: boolean, isFav: boolean): HTMLElemen
 
   const dots = createColorDots(theme);
 
-  const info = document.createElement('div');
-  info.className = 'card-info';
+  const info = h('div', { class: 'card-info' });
   info.innerHTML = `
     <span class="card-emoji">${theme.emoji}</span>
     <span class="card-name">${theme.name}</span>
@@ -97,8 +95,8 @@ export function mountPaletteStrip(container: HTMLElement): () => void {
     </div>
   `;
 
-  const scroll = container.querySelector('#palette-scroll') as HTMLElement;
-  const communityEmpty = container.querySelector('#community-empty') as HTMLElement;
+  const scroll = $('#palette-scroll', container) as HTMLElement;
+  const communityEmpty = $('#community-empty', container) as HTMLElement;
   const tabs = container.querySelectorAll<HTMLButtonElement>('.palette-tab');
 
   tabs.forEach(tab => {
@@ -109,7 +107,7 @@ export function mountPaletteStrip(container: HTMLElement): () => void {
     });
   });
 
-  const favBtn = container.querySelector('#favorites-filter-btn') as HTMLButtonElement;
+  const favBtn = $('#favorites-filter-btn', container) as HTMLButtonElement;
   const heartIcon = createElement(Heart as IconNode, { width: '14', height: '14' }) as unknown as Node;
   favBtn.appendChild(heartIcon);
   favBtn.appendChild(document.createTextNode(' Favorites'));
@@ -147,13 +145,9 @@ export function mountPaletteStrip(container: HTMLElement): () => void {
 
     // Show empty state for favorites filter
     if (favoritesFilterActive && scroll.children.length === 0) {
-      const empty = document.createElement('div');
-      empty.className = 'community-empty';
-      empty.style.width = '100%';
-      const text = document.createElement('p');
-      text.className = 'community-empty-text';
-      text.textContent = 'No favorites yet — click ★ on any theme';
-      empty.appendChild(text);
+      const empty = h('div', { class: 'community-empty', style: 'width:100%' }, [
+        h('p', { class: 'community-empty-text' }, ['No favorites yet — click ★ on any theme']),
+      ]);
       scroll.appendChild(empty);
     }
   }

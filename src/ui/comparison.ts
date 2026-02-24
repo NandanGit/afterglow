@@ -3,7 +3,7 @@ import type { Theme } from "../types/theme.ts";
 import { SimulatorEngine } from "../simulator/engine.ts";
 import { TerminalRenderer } from "../simulator/renderer.ts";
 import { scenarios } from "../simulator/scenarios/index.ts";
-import { createElement } from "../utils/dom.ts";
+import { createElement, $ } from "../utils/dom.ts";
 
 export function mountComparison(previewPanel: HTMLElement): () => void {
   let rendererB: TerminalRenderer | null = null;
@@ -31,9 +31,7 @@ export function mountComparison(previewPanel: HTMLElement): () => void {
     select.innerHTML = "";
     for (const [id, theme] of state.themes) {
       if (id === state.activeThemeId) continue;
-      const opt = document.createElement("option");
-      opt.value = id;
-      opt.textContent = theme.name;
+      const opt = createElement("option", { value: id }, [theme.name]);
       if (id === state.comparisonThemeId) opt.selected = true;
       select.appendChild(opt);
     }
@@ -45,37 +43,36 @@ export function mountComparison(previewPanel: HTMLElement): () => void {
     if (!state.comparisonEnabled) return;
 
     // Find the existing terminal window
-    originalTerminal = previewPanel.querySelector(
-      ".terminal-window",
-    ) as HTMLElement;
+    originalTerminal = $(".terminal-window", previewPanel) as HTMLElement;
     if (!originalTerminal) return;
     const parent = originalTerminal.parentElement!;
 
     // Wrap terminal window in a comparison wrapper
-    wrapperEl = document.createElement("div");
-    wrapperEl.className = "comparison-wrapper";
+    wrapperEl = createElement("div", { class: "comparison-wrapper" });
     parent.insertBefore(wrapperEl, originalTerminal);
     wrapperEl.appendChild(originalTerminal);
 
     // Create overlay terminal window
-    overlayEl = document.createElement("div");
-    overlayEl.className = "terminal-window comparison-overlay";
+    overlayEl = createElement("div", {
+      class: "terminal-window comparison-overlay",
+    });
 
-    const titlebar = document.createElement("div");
-    titlebar.className = "terminal-titlebar";
-    const dots = document.createElement("div");
-    dots.className = "terminal-dots";
-    dots.innerHTML =
-      '<span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>';
+    const titlebar = createElement("div", { class: "terminal-titlebar" });
+    const dots = createElement("div", {
+      class: "terminal-dots",
+      innerHTML:
+        '<span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>',
+    });
+    // dots.innerHTML =
+    //   '<span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>';
     titlebar.appendChild(dots);
     const title = createElement("span", { class: "terminal-title" }, [
-      "Comparison",
+      $(".terminal-title", originalTerminal)?.textContent || "Comparison",
     ]);
     titlebar.appendChild(title);
     overlayEl.appendChild(titlebar);
 
-    const contentEl = document.createElement("div");
-    contentEl.className = "terminal-content";
+    const contentEl = createElement("div", { class: "terminal-content" });
     overlayEl.appendChild(contentEl);
 
     // Apply comparison theme CSS vars to overlay
@@ -87,8 +84,7 @@ export function mountComparison(previewPanel: HTMLElement): () => void {
     wrapperEl.appendChild(overlayEl);
 
     // Create slider
-    sliderEl = document.createElement("div");
-    sliderEl.className = "comparison-slider";
+    sliderEl = createElement("div", { class: "comparison-slider" });
     wrapperEl.appendChild(sliderEl);
 
     // Set initial clip position
@@ -127,17 +123,13 @@ export function mountComparison(previewPanel: HTMLElement): () => void {
     };
 
     // Add comparison selector to speed controls
-    const controlsArea = previewPanel.querySelector(".speed-controls");
+    const controlsArea = $(".speed-controls", previewPanel);
     if (controlsArea) {
-      selectorEl = document.createElement("div");
-      selectorEl.className = "comparison-selector";
-      const select = document.createElement("select");
-      select.className = "comparison-select";
+      selectorEl = createElement("div", { class: "comparison-selector" });
+      const select = createElement("select", { class: "comparison-select" });
       for (const [id, theme] of state.themes) {
         if (id === state.activeThemeId) continue;
-        const opt = document.createElement("option");
-        opt.value = id;
-        opt.textContent = theme.name;
+        const opt = createElement("option", { value: id }, [theme.name]);
         if (id === state.comparisonThemeId) opt.selected = true;
         select.appendChild(opt);
       }

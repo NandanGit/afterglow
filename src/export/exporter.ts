@@ -4,6 +4,7 @@ import { serializeJson } from "./serializers/json.ts";
 import { serializeCssVars } from "./serializers/css.ts";
 import { copyToClipboard } from "../utils/clipboard.ts";
 import { showModal } from "../ui/modal.ts";
+import { createElement, $ } from "../utils/dom.ts";
 
 export type ExportFormat = "terminal" | "json" | "css";
 
@@ -18,9 +19,7 @@ function slugify(name: string): string {
 
 function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
+  const a = createElement("a", { href: url, download: filename });
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -62,7 +61,7 @@ function showExportGuide(format: ExportFormat): void {
 </div>`;
   }
 
-  const el = document.createElement("div");
+  const el = createElement("div");
   el.innerHTML = content;
 
   showModal({
@@ -73,9 +72,7 @@ function showExportGuide(format: ExportFormat): void {
 
   // Wire up suppress checkbox
   setTimeout(() => {
-    const checkbox = document.getElementById(
-      "export-guide-suppress",
-    ) as HTMLInputElement | null;
+    const checkbox = $("#export-guide-suppress") as HTMLInputElement | null;
     if (checkbox) {
       checkbox.addEventListener("change", () => {
         if (checkbox.checked) {
@@ -132,7 +129,7 @@ export async function copyCssVars(theme: Theme): Promise<void> {
     });
     // Auto-close after 1.5s
     setTimeout(() => {
-      const modal = document.querySelector(".modal-overlay");
+      const modal = $(".modal-overlay");
       if (modal) modal.remove();
     }, 1500);
   }

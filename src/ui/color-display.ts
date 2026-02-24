@@ -7,6 +7,7 @@ import { exportTheme, copyCssVars } from '../export/exporter.ts';
 import type { ExportFormat } from '../export/exporter.ts';
 import { createElement, Download, ClipboardCopy, Link, Unlink, Lock, Unlock } from 'lucide';
 import type { IconNode } from 'lucide';
+import { createElement as h, $ } from '../utils/dom.ts';
 
 const NORMAL_SLOT_KEYS: AnsiNormalSlot[] = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'];
 
@@ -42,11 +43,9 @@ const BRIGHT_SLOTS: { id: ColorSlotId; label: string }[] = [
 ];
 
 function showTooltip(el: HTMLElement, text: string): void {
-  const existing = el.querySelector('.swatch-tooltip');
+  const existing = $('.swatch-tooltip', el);
   if (existing) existing.remove();
-  const tip = document.createElement('span');
-  tip.className = 'swatch-tooltip';
-  tip.textContent = text;
+  const tip = h('span', { class: 'swatch-tooltip' }, [text]);
   el.appendChild(tip);
   requestAnimationFrame(() => tip.classList.add('swatch-tooltip--visible'));
   setTimeout(() => {
@@ -72,11 +71,8 @@ function createSwatch(
   isCore: boolean,
   editable: boolean,
 ): HTMLElement {
-  const wrapper = document.createElement('div');
-  wrapper.className = `swatch-wrapper ${className}`;
-
-  const swatch = document.createElement('div');
-  swatch.className = 'swatch' + (editable ? ' swatch--editable' : '');
+  const wrapper = h('div', { class: `swatch-wrapper ${className}` });
+  const swatch = h('div', { class: 'swatch' + (editable ? ' swatch--editable' : '') });
   swatch.style.backgroundColor = color;
 
   // Hover tooltip
@@ -88,26 +84,21 @@ function createSwatch(
     } else {
       text = `${label} · ${upper}`;
     }
-    const existing = wrapper.querySelector('.swatch-tooltip');
+    const existing = $('.swatch-tooltip', wrapper);
     if (existing) existing.remove();
-    const tip = document.createElement('span');
-    tip.className = 'swatch-tooltip swatch-tooltip--hover';
-    tip.textContent = text;
+    const tip = h('span', { class: 'swatch-tooltip swatch-tooltip--hover' }, [text]);
     wrapper.appendChild(tip);
     requestAnimationFrame(() => tip.classList.add('swatch-tooltip--visible'));
   });
 
   wrapper.addEventListener('mouseleave', () => {
-    const tip = wrapper.querySelector('.swatch-tooltip--hover');
+    const tip = $('.swatch-tooltip--hover', wrapper);
     if (tip) tip.remove();
   });
 
   if (editable) {
     // In custom mode: click opens native color picker
-    const colorInput = document.createElement('input');
-    colorInput.type = 'color';
-    colorInput.className = 'custom-color-input';
-    colorInput.value = color;
+    const colorInput = h('input', { type: 'color', class: 'custom-color-input', value: color });
     colorInput.addEventListener('input', () => {
       editColor(slotId, colorInput.value);
     });
@@ -122,9 +113,7 @@ function createSwatch(
     });
   }
 
-  const nameEl = document.createElement('span');
-  nameEl.className = 'swatch-label';
-  nameEl.textContent = label;
+  const nameEl = h('span', { class: 'swatch-label' }, [label]);
 
   wrapper.appendChild(swatch);
   if (isCore) wrapper.appendChild(nameEl);
@@ -138,30 +127,23 @@ function renderSwatches(container: HTMLElement, colors: ThemeColors): void {
   const editable = state.customModeActive;
 
   // Core colors
-  const coreLabel = document.createElement('h3');
-  coreLabel.className = 'section-label';
-  coreLabel.textContent = 'TERMINAL CORE';
-  container.appendChild(coreLabel);
+  container.appendChild(h('h3', { class: 'section-label' }, ['TERMINAL CORE']));
 
-  const coreRow = document.createElement('div');
-  coreRow.className = 'swatch-row swatch-row--core';
+  const coreRow = h('div', { class: 'swatch-row swatch-row--core' });
   for (const slot of CORE_SLOTS) {
     coreRow.appendChild(createSwatch(slot.id, slot.label, colors[slot.id], 'swatch-core', bgHex, true, editable));
   }
   container.appendChild(coreRow);
 
   // Normal colors header (with global lock button in custom mode)
-  const normalHeader = document.createElement('div');
-  normalHeader.className = editable ? 'section-label-row' : '';
-  const normalLabel = document.createElement('h3');
-  normalLabel.className = 'section-label';
-  normalLabel.textContent = 'NORMAL COLORS';
-  normalHeader.appendChild(normalLabel);
+  const normalHeader = h('div', { class: editable ? 'section-label-row' : '' });
+  normalHeader.appendChild(h('h3', { class: 'section-label' }, ['NORMAL COLORS']));
 
   if (editable) {
-    const globalLockBtn = document.createElement('button');
-    globalLockBtn.className = 'custom-global-lock-btn';
-    globalLockBtn.title = state.globalLock ? 'Unlock all pairs' : 'Lock all pairs';
+    const globalLockBtn = h('button', {
+      class: 'custom-global-lock-btn',
+      title: state.globalLock ? 'Unlock all pairs' : 'Lock all pairs',
+    });
     const lockIcon = createElement(
       (state.globalLock ? Lock : Unlock) as IconNode,
       { width: '12', height: '12' }
@@ -173,8 +155,7 @@ function renderSwatches(container: HTMLElement, colors: ThemeColors): void {
   }
   container.appendChild(normalHeader);
 
-  const normalRow = document.createElement('div');
-  normalRow.className = 'swatch-row swatch-row--ansi';
+  const normalRow = h('div', { class: 'swatch-row swatch-row--ansi' });
   for (const slot of NORMAL_SLOTS) {
     normalRow.appendChild(createSwatch(slot.id, slot.label, colors[slot.id], 'swatch-ansi', bgHex, false, editable));
   }
@@ -182,12 +163,12 @@ function renderSwatches(container: HTMLElement, colors: ThemeColors): void {
 
   // Per-pair link buttons between normal and bright (custom mode only)
   if (editable) {
-    const linkRow = document.createElement('div');
-    linkRow.className = 'custom-link-row';
+    const linkRow = h('div', { class: 'custom-link-row' });
     for (const ns of NORMAL_SLOT_KEYS) {
-      const linkBtn = document.createElement('button');
-      linkBtn.className = 'custom-link-btn' + (state.locks[ns] ? ' custom-link-btn--active' : '');
-      linkBtn.title = state.locks[ns] ? 'Unlink pair' : 'Link pair';
+      const linkBtn = h('button', {
+        class: 'custom-link-btn' + (state.locks[ns] ? ' custom-link-btn--active' : ''),
+        title: state.locks[ns] ? 'Unlink pair' : 'Link pair',
+      });
       const ico = createElement(
         (state.locks[ns] ? Link : Unlink) as IconNode,
         { width: '12', height: '12' }
@@ -200,13 +181,9 @@ function renderSwatches(container: HTMLElement, colors: ThemeColors): void {
   }
 
   // Bright colors
-  const brightLabel = document.createElement('h3');
-  brightLabel.className = 'section-label';
-  brightLabel.textContent = 'BRIGHT COLORS';
-  container.appendChild(brightLabel);
+  container.appendChild(h('h3', { class: 'section-label' }, ['BRIGHT COLORS']));
 
-  const brightRow = document.createElement('div');
-  brightRow.className = 'swatch-row swatch-row--ansi';
+  const brightRow = h('div', { class: 'swatch-row swatch-row--ansi' });
   for (const slot of BRIGHT_SLOTS) {
     brightRow.appendChild(createSwatch(slot.id, slot.label, colors[slot.id], 'swatch-ansi', bgHex, false, editable));
   }
@@ -214,26 +191,16 @@ function renderSwatches(container: HTMLElement, colors: ThemeColors): void {
 
   // Export buttons for preset themes
   if (!state.customModeActive) {
-    const exportLabel = document.createElement('h3');
-    exportLabel.className = 'section-label';
-    exportLabel.textContent = 'EXPORT';
-    container.appendChild(exportLabel);
+    container.appendChild(h('h3', { class: 'section-label' }, ['EXPORT']));
 
-    const exportRow = document.createElement('div');
-    exportRow.className = 'custom-export-row';
-
-    const exportGroup = document.createElement('div');
-    exportGroup.className = 'custom-export-group';
-
-    const exportBtn = document.createElement('button');
-    exportBtn.className = 'custom-export-btn';
+    const exportRow = h('div', { class: 'custom-export-row' });
+    const exportGroup = h('div', { class: 'custom-export-group' });
+    const exportBtn = h('button', { class: 'custom-export-btn' });
     const dlIcon = createElement(Download as IconNode, { width: '14', height: '14' });
     exportBtn.appendChild(dlIcon as unknown as Node);
     exportBtn.appendChild(document.createTextNode(' Export'));
 
-    const dropdown = document.createElement('div');
-    dropdown.className = 'custom-export-dropdown';
-    dropdown.style.display = 'none';
+    const dropdown = h('div', { class: 'custom-export-dropdown', style: 'display:none' });
 
     const formats: { label: string; format: ExportFormat }[] = [
       { label: '.terminal (macOS)', format: 'terminal' },
@@ -242,9 +209,7 @@ function renderSwatches(container: HTMLElement, colors: ThemeColors): void {
     ];
 
     for (const { label, format } of formats) {
-      const item = document.createElement('button');
-      item.className = 'custom-export-dropdown-item';
-      item.textContent = label;
+      const item = h('button', { class: 'custom-export-dropdown-item' }, [label]);
       item.addEventListener('click', () => {
         dropdown.style.display = 'none';
         const theme = state.themes.get(state.activeThemeId);
@@ -270,8 +235,7 @@ function renderSwatches(container: HTMLElement, colors: ThemeColors): void {
     exportGroup.appendChild(dropdown);
     exportRow.appendChild(exportGroup);
 
-    const copyBtn = document.createElement('button');
-    copyBtn.className = 'custom-copy-btn';
+    const copyBtn = h('button', { class: 'custom-copy-btn' });
     const cpIcon = createElement(ClipboardCopy as IconNode, { width: '14', height: '14' });
     copyBtn.appendChild(cpIcon as unknown as Node);
     copyBtn.appendChild(document.createTextNode(' Copy CSS'));

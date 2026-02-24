@@ -1,4 +1,5 @@
 import { store } from '../store/store.ts';
+import { $ } from '../utils/dom.ts';
 
 export function mountHeader(container: HTMLElement): () => void {
   container.innerHTML = `
@@ -8,7 +9,7 @@ export function mountHeader(container: HTMLElement): () => void {
     </div>
   `;
 
-  const nameEl = container.querySelector('.header-theme-name')!;
+  const nameEl = $('.header-theme-name', container)!;
 
   function update(): void {
     const state = store.getState();

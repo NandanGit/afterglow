@@ -1,3 +1,5 @@
+import { createElement, $ } from '../utils/dom.ts';
+
 export interface ModalOptions {
   title: string;
   content: string | HTMLElement;
@@ -7,28 +9,19 @@ export interface ModalOptions {
 export function showModal(options: ModalOptions): void {
   closeModal(); // Remove any existing modal
 
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-
-  const dialog = document.createElement('div');
-  dialog.className = 'modal-dialog';
+  const overlay = createElement('div', { class: 'modal-overlay' });
+  const dialog = createElement('div', { class: 'modal-dialog' });
 
   // Close button
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'modal-close-btn';
-  closeBtn.textContent = '×';
+  const closeBtn = createElement('button', { class: 'modal-close-btn' }, ['×']);
   closeBtn.addEventListener('click', closeModal);
   dialog.appendChild(closeBtn);
 
   // Title
-  const titleEl = document.createElement('h2');
-  titleEl.className = 'modal-title';
-  titleEl.textContent = options.title;
-  dialog.appendChild(titleEl);
+  dialog.appendChild(createElement('h2', { class: 'modal-title' }, [options.title]));
 
   // Content
-  const contentEl = document.createElement('div');
-  contentEl.className = 'modal-content';
+  const contentEl = createElement('div', { class: 'modal-content' });
   if (typeof options.content === 'string') {
     contentEl.textContent = options.content;
   } else {
@@ -38,9 +31,7 @@ export function showModal(options: ModalOptions): void {
 
   // Footer button
   if (options.closeLabel) {
-    const footerBtn = document.createElement('button');
-    footerBtn.className = 'modal-footer-btn';
-    footerBtn.textContent = options.closeLabel;
+    const footerBtn = createElement('button', { class: 'modal-footer-btn' }, [options.closeLabel]);
     footerBtn.addEventListener('click', closeModal);
     dialog.appendChild(footerBtn);
   }
@@ -65,6 +56,6 @@ export function showModal(options: ModalOptions): void {
 }
 
 export function closeModal(): void {
-  const existing = document.querySelector('.modal-overlay');
+  const existing = $('.modal-overlay');
   if (existing) existing.remove();
 }

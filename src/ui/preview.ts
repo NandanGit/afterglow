@@ -5,6 +5,7 @@ import { TerminalRenderer } from '../simulator/renderer.ts';
 import { scenarios } from '../simulator/scenarios/index.ts';
 import { createElement, RotateCw, Columns2 } from 'lucide';
 import type { IconNode } from 'lucide';
+import { createElement as h, $ } from '../utils/dom.ts';
 
 const SCENARIO_TABS: { id: ScenarioId; label: string }[] = [
   { id: 'all', label: 'ALL' },
@@ -46,14 +47,14 @@ export function mountPreview(container: HTMLElement): () => void {
   `;
 
   // Elements
-  const tabsEl = container.querySelector('#scenario-tabs') as HTMLElement;
-  const speedDisplay = container.querySelector('#speed-display') as HTMLElement;
-  const speedDown = container.querySelector('#speed-down') as HTMLElement;
-  const speedUp = container.querySelector('#speed-up') as HTMLElement;
-  const loopBtn = container.querySelector('#loop-btn') as HTMLElement;
-  const compareBtn = container.querySelector('#compare-btn') as HTMLElement;
-  const titleEl = container.querySelector('#terminal-title') as HTMLElement;
-  const contentEl = container.querySelector('#terminal-content') as HTMLElement;
+  const tabsEl = $('#scenario-tabs', container) as HTMLElement;
+  const speedDisplay = $('#speed-display', container) as HTMLElement;
+  const speedDown = $('#speed-down', container) as HTMLElement;
+  const speedUp = $('#speed-up', container) as HTMLElement;
+  const loopBtn = $('#loop-btn', container) as HTMLElement;
+  const compareBtn = $('#compare-btn', container) as HTMLElement;
+  const titleEl = $('#terminal-title', container) as HTMLElement;
+  const contentEl = $('#terminal-content', container) as HTMLElement;
 
   // Renderer & Engine
   const renderer = new TerminalRenderer(contentEl);
@@ -76,9 +77,9 @@ export function mountPreview(container: HTMLElement): () => void {
     const activeScenario = store.getState().activeScenario;
     tabsEl.innerHTML = '';
     for (const tab of SCENARIO_TABS) {
-      const btn = document.createElement('button');
-      btn.className = 'scenario-tab' + (tab.id === activeScenario ? ' scenario-tab--active' : '');
-      btn.textContent = tab.label;
+      const btn = h('button', {
+        class: 'scenario-tab' + (tab.id === activeScenario ? ' scenario-tab--active' : ''),
+      }, [tab.label]);
       btn.addEventListener('click', () => {
         store.setState({ activeScenario: tab.id });
       });

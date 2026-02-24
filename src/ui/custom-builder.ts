@@ -21,6 +21,7 @@ import { exportTheme, copyCssVars } from "../export/exporter.ts";
 import type { ExportFormat } from "../export/exporter.ts";
 import { encodeThemeToURL } from "../sharing/url.ts";
 import { copyToClipboard } from "../utils/clipboard.ts";
+import { createElement as h } from "../utils/dom.ts";
 
 function icon(node: IconNode, size = 16, cls = ""): Node {
   return createElement(node, {
@@ -57,17 +58,11 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
   }
 
   function renderInactiveState(el: HTMLElement): void {
-    const wrapper = document.createElement("div");
-    wrapper.className = "custom-builder-inactive";
+    const wrapper = h("div", { class: "custom-builder-inactive" }, [
+      h("h3", { class: "section-label" }, ["CREATE CUSTOM THEME"]),
+    ]);
 
-    const label = document.createElement("h3");
-    label.className = "section-label";
-    label.textContent = "CREATE CUSTOM THEME";
-    wrapper.appendChild(label);
-
-    const btn = document.createElement("button");
-    btn.className = "custom-start-btn";
-    btn.textContent = "Start Building";
+    const btn = h("button", { class: "custom-start-btn" }, ["Start Building"]);
     btn.addEventListener("click", () => enterCustomMode());
     wrapper.appendChild(btn);
 
@@ -78,19 +73,12 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
     const state = store.getState();
     if (!state.customTheme) return;
 
-    const wrapper = document.createElement("div");
-    wrapper.className = "custom-builder-active";
+    const wrapper = h("div", { class: "custom-builder-active" });
 
     // Header
-    const header = document.createElement("div");
-    header.className = "custom-builder-header";
-    const headerLabel = document.createElement("h3");
-    headerLabel.className = "section-label";
-    headerLabel.style.marginTop = "0";
-    headerLabel.textContent = "CUSTOM BUILDER";
-    const discardBtn = document.createElement("button");
-    discardBtn.className = "custom-discard-btn";
-    discardBtn.title = "Discard";
+    const header = h("div", { class: "custom-builder-header" });
+    const headerLabel = h("h3", { class: "section-label", style: "margin-top:0" }, ["CUSTOM BUILDER"]);
+    const discardBtn = h("button", { class: "custom-discard-btn", title: "Discard" });
     discardBtn.appendChild(icon(X as IconNode, 16));
     discardBtn.addEventListener("click", () => exitCustomMode());
     header.appendChild(headerLabel);
@@ -98,59 +86,41 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
     wrapper.appendChild(header);
 
     // Theme name input
-    const nameRow = document.createElement("div");
-    nameRow.className = "custom-name-row";
-    const nameLabel = document.createElement("label");
-    nameLabel.className = "custom-name-label";
-    nameLabel.textContent = "Theme Name";
-    const nameInput = document.createElement("input");
-    nameInput.type = "text";
-    nameInput.className = "custom-name-input";
-    nameInput.value = state.customTheme.name;
+    const nameRow = h("div", { class: "custom-name-row" });
+    nameRow.appendChild(h("label", { class: "custom-name-label" }, ["Theme Name"]));
+    const nameInput = h("input", { type: "text", class: "custom-name-input", value: state.customTheme.name });
     nameInput.addEventListener("input", () =>
       setCustomThemeName(nameInput.value),
     );
-    nameRow.appendChild(nameLabel);
     nameRow.appendChild(nameInput);
     wrapper.appendChild(nameRow);
 
     // Sliders
-    const slidersDiv = document.createElement("div");
-    slidersDiv.className = "custom-sliders";
+    const slidersDiv = h("div", { class: "custom-sliders" });
     for (const def of SLIDER_DEFS) {
-      const row = document.createElement("div");
-      row.className = "custom-slider-row";
-      const label = document.createElement("label");
-      label.className = "custom-slider-label";
-      label.textContent = def.label;
-      const input = document.createElement("input");
-      input.type = "range";
+      const row = h("div", { class: "custom-slider-row" });
+      row.appendChild(h("label", { class: "custom-slider-label" }, [def.label]));
       const isBrightness = def.key === "brightness";
       const isHue = def.key === "hue";
-      input.className =
-        "custom-slider" +
-        (isHue ? " custom-slider--hue" : "") +
-        (isBrightness ? " custom-slider--brightness" : "");
-      input.min = String(def.min);
-      input.max = String(def.max);
-      input.step = String(def.step);
-      input.value = String(state.customControls[def.key]);
+      const input = h("input", {
+        type: "range",
+        class: "custom-slider" +
+          (isHue ? " custom-slider--hue" : "") +
+          (isBrightness ? " custom-slider--brightness" : ""),
+        min: String(def.min),
+        max: String(def.max),
+        step: String(def.step),
+        value: String(state.customControls[def.key]),
+      });
       input.addEventListener("input", () => {
         setCustomControl(def.key, parseFloat(input.value));
       });
-      row.appendChild(label);
       if (isBrightness) {
-        const darkHint = document.createElement("span");
-        darkHint.className = "custom-slider-hint dark-hint";
-        darkHint.textContent = "Dark";
-        row.appendChild(darkHint);
+        row.appendChild(h("span", { class: "custom-slider-hint dark-hint" }, ["Dark"]));
       }
       row.appendChild(input);
       if (isBrightness) {
-        const lightHint = document.createElement("span");
-        lightHint.className = "custom-slider-hint light-hint";
-        lightHint.textContent = "Light";
-        row.appendChild(lightHint);
+        row.appendChild(h("span", { class: "custom-slider-hint light-hint" }, ["Light"]));
       }
 
       // // Add Dark/Light labels for brightness slider
@@ -171,8 +141,7 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
     wrapper.appendChild(slidersDiv);
 
     // Surprise Me button
-    const surpriseBtn = document.createElement("button");
-    surpriseBtn.className = "custom-surprise-btn";
+    const surpriseBtn = h("button", { class: "custom-surprise-btn" });
     surpriseBtn.appendChild(icon(Dices as IconNode, 16));
     surpriseBtn.appendChild(document.createTextNode(" Surprise Me"));
     surpriseBtn.addEventListener("click", () => {
@@ -190,25 +159,19 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
     wrapper.appendChild(surpriseBtn);
 
     // Export buttons
-    const exportRow = document.createElement("div");
-    exportRow.className = "custom-export-row";
+    const exportRow = h("div", { class: "custom-export-row" });
 
     // Export split-button with dropdown
-    const exportGroup = document.createElement("div");
-    exportGroup.className = "custom-export-group";
+    const exportGroup = h("div", { class: "custom-export-group" });
 
-    const exportBtn = document.createElement("button");
-    exportBtn.className = "custom-export-btn";
+    const exportBtn = h("button", { class: "custom-export-btn" });
     exportBtn.appendChild(icon(Download as IconNode, 14));
     exportBtn.appendChild(document.createTextNode(" Export"));
-    const chevron = document.createElement("span");
-    chevron.className = "custom-export-chevron";
+    const chevron = h("span", { class: "custom-export-chevron" });
     chevron.appendChild(icon(ChevronDown as IconNode, 12));
     exportBtn.appendChild(chevron);
 
-    const dropdown = document.createElement("div");
-    dropdown.className = "custom-export-dropdown";
-    dropdown.style.display = "none";
+    const dropdown = h("div", { class: "custom-export-dropdown", style: "display:none" });
 
     const formats: { label: string; format: ExportFormat }[] = [
       { label: ".terminal (macOS)", format: "terminal" },
@@ -217,9 +180,7 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
     ];
 
     for (const { label, format } of formats) {
-      const item = document.createElement("button");
-      item.className = "custom-export-dropdown-item";
-      item.textContent = label;
+      const item = h("button", { class: "custom-export-dropdown-item" }, [label]);
       item.addEventListener("click", () => {
         dropdown.style.display = "none";
         const current = store.getState();
@@ -248,8 +209,7 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
     exportGroup.appendChild(dropdown);
     exportRow.appendChild(exportGroup);
 
-    const copyBtn = document.createElement("button");
-    copyBtn.className = "custom-copy-btn";
+    const copyBtn = h("button", { class: "custom-copy-btn" });
     copyBtn.appendChild(icon(ClipboardCopy as IconNode, 14));
     copyBtn.appendChild(document.createTextNode(" Copy CSS"));
     copyBtn.addEventListener("click", () => {
@@ -261,8 +221,7 @@ export function mountCustomBuilder(container: HTMLElement): () => void {
     wrapper.appendChild(exportRow);
 
     // Share button
-    const shareBtn = document.createElement("button");
-    shareBtn.className = "custom-surprise-btn";
+    const shareBtn = h("button", { class: "custom-surprise-btn" });
     shareBtn.appendChild(icon(Share2 as IconNode, 14));
     shareBtn.appendChild(document.createTextNode(" Share Link"));
     shareBtn.addEventListener("click", () => {

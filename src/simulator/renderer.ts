@@ -1,3 +1,5 @@
+import { createElement, $ } from '../utils/dom.ts';
+
 export class TerminalRenderer {
   private container: HTMLElement;
   private outputEl: HTMLElement;
@@ -5,27 +7,16 @@ export class TerminalRenderer {
 
   constructor(container: HTMLElement) {
     this.container = container;
-    this.outputEl = document.createElement('div');
-    this.outputEl.className = 'terminal-output';
+    this.outputEl = createElement('div', { class: 'terminal-output' });
     this.container.appendChild(this.outputEl);
   }
 
   showPrompt(prompt: string): void {
-    this.currentLineEl = document.createElement('div');
-    this.currentLineEl.className = 'terminal-line terminal-prompt-line';
-
-    const promptSpan = document.createElement('span');
-    promptSpan.className = 'terminal-prompt';
-    promptSpan.textContent = prompt + ' ';
-    this.currentLineEl.appendChild(promptSpan);
-
-    const cmdSpan = document.createElement('span');
-    cmdSpan.className = 'terminal-command';
-    this.currentLineEl.appendChild(cmdSpan);
-
-    const cursor = document.createElement('span');
-    cursor.className = 'terminal-cursor-char';
-    this.currentLineEl.appendChild(cursor);
+    this.currentLineEl = createElement('div', { class: 'terminal-line terminal-prompt-line' }, [
+      createElement('span', { class: 'terminal-prompt' }, [prompt + ' ']),
+      createElement('span', { class: 'terminal-command' }),
+      createElement('span', { class: 'terminal-cursor-char' }),
+    ]);
 
     this.outputEl.appendChild(this.currentLineEl);
     this.scrollToBottom();
@@ -33,7 +24,7 @@ export class TerminalRenderer {
 
   typeChar(char: string): void {
     if (!this.currentLineEl) return;
-    const cmdSpan = this.currentLineEl.querySelector('.terminal-command');
+    const cmdSpan = $('.terminal-command', this.currentLineEl);
     if (cmdSpan) {
       cmdSpan.textContent = (cmdSpan.textContent ?? '') + char;
     }
@@ -42,7 +33,7 @@ export class TerminalRenderer {
 
   finishCommand(): void {
     if (this.currentLineEl) {
-      const cursor = this.currentLineEl.querySelector('.terminal-cursor-char');
+      const cursor = $('.terminal-cursor-char', this.currentLineEl);
       if (cursor) cursor.remove();
     }
     this.currentLineEl = null;
@@ -53,15 +44,11 @@ export class TerminalRenderer {
       this.clear();
       return;
     }
-    const line = document.createElement('div');
-    line.className = 'terminal-line';
+    const line = createElement('div', { class: 'terminal-line' });
 
     if (event.tokens) {
       for (const token of event.tokens) {
-        const span = document.createElement('span');
-        if (token.class) span.className = token.class;
-        span.textContent = token.text;
-        line.appendChild(span);
+        line.appendChild(createElement('span', token.class ? { class: token.class } : {}, [token.text]));
       }
     } else if (event.text !== undefined) {
       line.textContent = event.text;
@@ -72,15 +59,10 @@ export class TerminalRenderer {
   }
 
   showIdleCursor(): void {
-    const line = document.createElement('div');
-    line.className = 'terminal-line terminal-prompt-line';
-    const promptSpan = document.createElement('span');
-    promptSpan.className = 'terminal-prompt';
-    promptSpan.textContent = '❯ ';
-    line.appendChild(promptSpan);
-    const cursor = document.createElement('span');
-    cursor.className = 'terminal-cursor-char terminal-cursor-blink';
-    line.appendChild(cursor);
+    const line = createElement('div', { class: 'terminal-line terminal-prompt-line' }, [
+      createElement('span', { class: 'terminal-prompt' }, ['❯ ']),
+      createElement('span', { class: 'terminal-cursor-char terminal-cursor-blink' }),
+    ]);
     this.outputEl.appendChild(line);
     this.scrollToBottom();
   }

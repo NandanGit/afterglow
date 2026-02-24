@@ -14,9 +14,10 @@ import { enterCustomMode } from "./store/store.ts";
 import { hexToOklch, oklchToHex } from "./color/oklch.ts";
 import { exportTheme, copyCssVars } from "./export/exporter.ts";
 import { showModal, closeModal } from "./ui/modal.ts";
+import { createElement, $ } from "./utils/dom.ts";
 import type { Theme } from "./types/theme.ts";
 
-const app = document.getElementById("app")!;
+const app = $("#app")! as HTMLElement;
 
 // Root layout
 app.innerHTML = `
@@ -100,14 +101,14 @@ if (themeParam) {
 }
 
 // Mount UI components
-mountHeader(document.getElementById("header")!);
-mountSearch(document.getElementById("search-area")!);
-mountPaletteStrip(document.getElementById("palette")!);
-mountColorDisplay(document.getElementById("color-display")!);
-mountPreview(document.getElementById("preview")!);
-mountCustomBuilder(document.getElementById("custom-builder")!);
-mountComparison(document.getElementById("preview")!);
-mountFontControls(document.getElementById("font-controls")!);
+mountHeader($("#header")! as HTMLElement);
+mountSearch($("#search-area")! as HTMLElement);
+mountPaletteStrip($("#palette")! as HTMLElement);
+mountColorDisplay($("#color-display")! as HTMLElement);
+mountPreview($("#preview")! as HTMLElement);
+mountCustomBuilder($("#custom-builder")! as HTMLElement);
+mountComparison($("#preview")! as HTMLElement);
+mountFontControls($("#font-controls")! as HTMLElement);
 
 // --- Keyboard shortcuts ---
 let lastNonZeroSpeed = 1;
@@ -165,7 +166,7 @@ document.addEventListener('keydown', (e: KeyboardEvent) => {
     }
     case '/': {
       e.preventDefault();
-      const searchInput = document.getElementById('theme-search-input') as HTMLInputElement | null;
+      const searchInput = $('#theme-search-input') as HTMLInputElement | null;
       if (searchInput) searchInput.focus();
       break;
     }
@@ -179,7 +180,7 @@ document.addEventListener('keydown', (e: KeyboardEvent) => {
     }
     case 'Escape': {
       // Priority: close modal > exit comparison > exit custom mode
-      const modal = document.querySelector('.modal-overlay');
+      const modal = $('.modal-overlay');
       if (modal) { closeModal(); break; }
       if (state.comparisonEnabled) { store.setState({ comparisonEnabled: false }); break; }
       if (state.customModeActive) { exitCustomMode(); break; }
@@ -189,7 +190,7 @@ document.addEventListener('keydown', (e: KeyboardEvent) => {
 });
 
 function showShortcutCheatsheet(): void {
-  const content = document.createElement('div');
+  const content = createElement('div');
   content.innerHTML = `
     <table class="shortcut-table">
       <tr><td class="shortcut-key">←/→</td><td>Previous/Next theme</td></tr>

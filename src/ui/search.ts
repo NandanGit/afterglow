@@ -1,31 +1,28 @@
 import { store } from '../store/store.ts';
 import { createElement, Search, X } from 'lucide';
 import type { IconNode } from 'lucide';
+import { createElement as h } from '../utils/dom.ts';
 
 export function mountSearch(container: HTMLElement): () => void {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'search-wrapper';
-
-  const inputWrap = document.createElement('div');
-  inputWrap.className = 'search-input-wrap';
+  const wrapper = h('div', { class: 'search-wrapper' });
+  const inputWrap = h('div', { class: 'search-input-wrap' });
 
   const searchIcon = createElement(Search as IconNode, { width: '14', height: '14', class: 'search-icon' });
   inputWrap.appendChild(searchIcon as unknown as Node);
 
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.className = 'search-input';
-  input.placeholder = 'Search themes...';
-  input.id = 'theme-search-input';
+  const input = h('input', {
+    type: 'text',
+    class: 'search-input',
+    placeholder: 'Search themes...',
+    id: 'theme-search-input',
+  });
   input.addEventListener('input', () => {
     store.setState({ searchQuery: input.value });
     clearBtn.style.display = input.value ? 'flex' : 'none';
   });
   inputWrap.appendChild(input);
 
-  const clearBtn = document.createElement('button');
-  clearBtn.className = 'search-clear-btn';
-  clearBtn.style.display = 'none';
+  const clearBtn = h('button', { class: 'search-clear-btn', style: 'display:none' });
   clearBtn.appendChild(createElement(X as IconNode, { width: '12', height: '12' }) as unknown as Node);
   clearBtn.addEventListener('click', () => {
     input.value = '';

@@ -5,13 +5,21 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
 ): HTMLElementTagNameMap[K] {
   const el = document.createElement(tag);
   if (attrs) {
+    const innerHTML = attrs.innerHTML;
+    if (innerHTML) {
+      el.innerHTML = innerHTML;
+      delete attrs.innerHTML;
+    }
     for (const [key, value] of Object.entries(attrs)) {
       el.setAttribute(key, value);
     }
+    if (innerHTML) return el;
   }
   if (children) {
     for (const child of children) {
-      el.append(typeof child === 'string' ? document.createTextNode(child) : child);
+      el.append(
+        typeof child === "string" ? document.createTextNode(child) : child,
+      );
     }
   }
   return el;
