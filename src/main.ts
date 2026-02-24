@@ -8,7 +8,6 @@ import { mountPreview } from "./ui/preview.ts";
 import { mountCustomBuilder } from "./ui/custom-builder.ts";
 import { mountComparison } from "./ui/comparison.ts";
 import { mountSearch } from "./ui/search.ts";
-import { mountFontControls } from "./ui/font-controls.ts";
 import { decodeThemeFromURL } from "./sharing/url.ts";
 import { enterCustomMode } from "./store/store.ts";
 import { hexToOklch, oklchToHex } from "./color/oklch.ts";
@@ -30,7 +29,6 @@ app.innerHTML = `
     <div class="right-panel" id="right-panel">
       <div class="color-display" id="color-display"></div>
       <div class="custom-builder" id="custom-builder"></div>
-      <div class="font-controls-container" id="font-controls"></div>
     </div>
   </main>
 `;
@@ -54,10 +52,13 @@ function applyThemeVars(theme: Theme): void {
 // Ambient background + theme accent
 function updateAmbientBackground(theme: Theme): void {
   const oklch = hexToOklch(theme.colors.background);
-  const ambientHex = oklchToHex({ L: 0.30, C: 0.06, H: oklch.H });
+  const ambientHex = oklchToHex({ L: 0.3, C: 0.06, H: oklch.H });
   document.documentElement.style.setProperty("--ambient-color", ambientHex);
   // Pick a vivid accent from the theme: prefer cyan, fallback to green
-  document.documentElement.style.setProperty("--theme-accent", theme.colors.cyan);
+  document.documentElement.style.setProperty(
+    "--theme-accent",
+    theme.colors.cyan,
+  );
 }
 
 const initialTheme = getActiveTheme();
@@ -72,9 +73,10 @@ store.subscribe((state, prev) => {
     state.customModeActive !== prev.customModeActive ||
     state.customTheme !== prev.customTheme;
   if (themeChanged) {
-    const theme = state.customModeActive && state.customTheme
-      ? state.customTheme
-      : state.themes.get(state.activeThemeId);
+    const theme =
+      state.customModeActive && state.customTheme
+        ? state.customTheme
+        : state.themes.get(state.activeThemeId);
     if (theme) {
       applyThemeVars(theme);
       updateAmbientBackground(theme);
@@ -84,7 +86,7 @@ store.subscribe((state, prev) => {
 
 // --- URL sharing: decode theme from URL on load ---
 const urlParams = new URLSearchParams(window.location.search);
-const themeParam = urlParams.get('theme');
+const themeParam = urlParams.get("theme");
 if (themeParam) {
   const decoded = decodeThemeFromURL(themeParam);
   if (decoded) {
@@ -108,37 +110,40 @@ mountColorDisplay($("#color-display")! as HTMLElement);
 mountPreview($("#preview")! as HTMLElement);
 mountCustomBuilder($("#custom-builder")! as HTMLElement);
 mountComparison($("#preview")! as HTMLElement);
-mountFontControls($("#font-controls")! as HTMLElement);
 
 // --- Keyboard shortcuts ---
 let lastNonZeroSpeed = 1;
 
-document.addEventListener('keydown', (e: KeyboardEvent) => {
+document.addEventListener("keydown", (e: KeyboardEvent) => {
   // Disable shortcuts when typing in inputs
-  const tag = (document.activeElement?.tagName ?? '').toLowerCase();
-  if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+  const tag = (document.activeElement?.tagName ?? "").toLowerCase();
+  if (tag === "input" || tag === "textarea" || tag === "select") return;
 
   const state = store.getState();
-  const themeIds = [...state.themes.keys()].filter(id => {
+  const themeIds = [...state.themes.keys()].filter((id) => {
     const t = state.themes.get(id);
-    return t && t.source === 'bundled';
+    return t && t.source === "bundled";
   });
   const currentIdx = themeIds.indexOf(state.activeThemeId);
 
   switch (e.key) {
-    case 'ArrowLeft': {
+    case "ArrowLeft": {
       e.preventDefault();
-      if (currentIdx > 0) store.setState({ activeThemeId: themeIds[currentIdx - 1] });
-      else if (themeIds.length > 0) store.setState({ activeThemeId: themeIds[themeIds.length - 1] });
+      if (currentIdx > 0)
+        store.setState({ activeThemeId: themeIds[currentIdx - 1] });
+      else if (themeIds.length > 0)
+        store.setState({ activeThemeId: themeIds[themeIds.length - 1] });
       break;
     }
-    case 'ArrowRight': {
+    case "ArrowRight": {
       e.preventDefault();
-      if (currentIdx < themeIds.length - 1) store.setState({ activeThemeId: themeIds[currentIdx + 1] });
-      else if (themeIds.length > 0) store.setState({ activeThemeId: themeIds[0] });
+      if (currentIdx < themeIds.length - 1)
+        store.setState({ activeThemeId: themeIds[currentIdx + 1] });
+      else if (themeIds.length > 0)
+        store.setState({ activeThemeId: themeIds[0] });
       break;
     }
-    case ' ': {
+    case " ": {
       e.preventDefault();
       if (state.speed === 0) {
         store.setState({ speed: lastNonZeroSpeed });
@@ -148,49 +153,58 @@ document.addEventListener('keydown', (e: KeyboardEvent) => {
       }
       break;
     }
-    case 'e':
-    case 'E': {
+    case "e":
+    case "E": {
       const theme = getActiveTheme();
-      if (theme) exportTheme(theme, 'terminal');
+      if (theme) exportTheme(theme, "terminal");
       break;
     }
-    case 'c':
-    case 'C': {
+    case "c":
+    case "C": {
       const theme = getActiveTheme();
       if (theme) void copyCssVars(theme);
       break;
     }
-    case '?': {
+    case "?": {
       showShortcutCheatsheet();
       break;
     }
-    case '/': {
+    case "/": {
       e.preventDefault();
-      const searchInput = $('#theme-search-input') as HTMLInputElement | null;
+      const searchInput = $("#theme-search-input") as HTMLInputElement | null;
       if (searchInput) searchInput.focus();
       break;
     }
-    case 'f':
-    case 'F': {
+    case "f":
+    case "F": {
       const favs = new Set(state.favorites);
       if (favs.has(state.activeThemeId)) favs.delete(state.activeThemeId);
       else favs.add(state.activeThemeId);
       store.setState({ favorites: favs });
       break;
     }
-    case 'Escape': {
+    case "Escape": {
       // Priority: close modal > exit comparison > exit custom mode
-      const modal = $('.modal-overlay');
-      if (modal) { closeModal(); break; }
-      if (state.comparisonEnabled) { store.setState({ comparisonEnabled: false }); break; }
-      if (state.customModeActive) { exitCustomMode(); break; }
+      const modal = $(".modal-overlay");
+      if (modal) {
+        closeModal();
+        break;
+      }
+      if (state.comparisonEnabled) {
+        store.setState({ comparisonEnabled: false });
+        break;
+      }
+      if (state.customModeActive) {
+        exitCustomMode();
+        break;
+      }
       break;
     }
   }
 });
 
 function showShortcutCheatsheet(): void {
-  const content = createElement('div');
+  const content = createElement("div");
   content.innerHTML = `
     <table class="shortcut-table">
       <tr><td class="shortcut-key">←/→</td><td>Previous/Next theme</td></tr>
@@ -203,5 +217,5 @@ function showShortcutCheatsheet(): void {
       <tr><td class="shortcut-key">Esc</td><td>Close/Exit</td></tr>
     </table>
   `;
-  showModal({ title: 'Keyboard Shortcuts', content, closeLabel: 'Close' });
+  showModal({ title: "Keyboard Shortcuts", content, closeLabel: "Close" });
 }
