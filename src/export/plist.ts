@@ -256,7 +256,10 @@ function hexToRgbFloats(hex: string): [number, number, number] {
 
 export function encodeNSColor(hex: string): Uint8Array {
   const [r, g, b] = hexToRgbFloats(hex);
-  const nsrgb = new TextEncoder().encode(`${r} ${g} ${b}`);
+  // Null-terminated C string — Terminal.app requires the \0
+  const rgbStr = `${r} ${g} ${b}\0`;
+  const nsrgb = new Uint8Array(rgbStr.length);
+  for (let i = 0; i < rgbStr.length; i++) nsrgb[i] = rgbStr.charCodeAt(i);
 
   const archive: PlistValue = {
     '$archiver': 'NSKeyedArchiver',
@@ -267,6 +270,7 @@ export function encodeNSColor(hex: string): Uint8Array {
       {
         '$class': new PlistUID(2),
         'NSRGB': nsrgb,
+        'NSColorSpace': 1,
       },
       {
         '$classname': 'NSColor',
