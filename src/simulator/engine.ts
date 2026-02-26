@@ -99,7 +99,7 @@ export class SimulatorEngine {
   private flatten(scenario: Scenario): Step[] {
     const steps: Step[] = [];
     for (const cmd of scenario.commands) {
-      steps.push({ kind: 'prompt', prompt: scenario.prompt });
+      steps.push({ kind: 'prompt', prompt: cmd.prompt ?? scenario.prompt });
       const typeSpeed = cmd.typeSpeed ?? 50;
       for (const char of cmd.text) {
         steps.push({ kind: 'char', char, delay: typeSpeed });

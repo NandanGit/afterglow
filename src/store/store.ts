@@ -9,17 +9,9 @@ import { NORMAL_TO_BRIGHT } from "../types/theme.ts";
 import { bundledThemes } from "../themes/bundled.ts";
 import { generatePalette } from "../color/generator.ts";
 import { deriveBright } from "../color/derive.ts";
+import type { ScenarioId } from "../simulator/scenarios/index.ts";
 
-export type ScenarioId =
-  | "all"
-  | "git"
-  | "python"
-  | "logs"
-  | "system"
-  | "docker"
-  | "files"
-  | "build"
-  | "ssh";
+export type { ScenarioId };
 
 export interface CustomControls {
   hue: number;

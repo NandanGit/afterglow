@@ -15,13 +15,13 @@
 ## Store Types (from `src/store/store.ts`)
 
 - **`CustomControls`** — `{ hue: number, warmth: number, saturation: number, contrast: number, brightness: number }`
-- **`ScenarioId`** — `'all' | 'git' | 'python' | 'logs' | 'system' | 'docker' | 'files' | 'build' | 'ssh'`
+- **`ScenarioId`** — `'all' | 'git' | 'python' | 'node' | 'logs' | 'system' | 'docker' | 'files' | 'build' | 'ssh'`
 - **`AppState`** — Full store shape (see `store.md`)
 
 ## Simulator Types (from `src/simulator/scenarios/index.ts`)
 
 - **`Scenario`** — `{ id, title, prompt, windowTitle, commands: ScenarioCommand[] }`
-- **`ScenarioCommand`** — `{ text, typeSpeed?, events: ScenarioEvent[] }`
+- **`ScenarioCommand`** — `{ text, typeSpeed?, prompt?, events: ScenarioEvent[] }`
 - **`ScenarioEvent`** — `{ type: 'output' | 'clear' | 'pause', text?, tokens?: OutputToken[], delay }`
 - **`OutputToken`** — `{ text, class? }`
 

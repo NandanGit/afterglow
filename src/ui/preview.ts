@@ -11,17 +11,10 @@ import {
 import type { IconNode } from "lucide";
 import { createElement, $ } from "../utils/dom.ts";
 
-const SCENARIO_TABS: { id: ScenarioId; label: string }[] = [
-  { id: "all", label: "ALL" },
-  { id: "git", label: "GIT" },
-  { id: "python", label: "PYTHON" },
-  { id: "logs", label: "LOGS" },
-  { id: "system", label: "SYSTEM" },
-  { id: "docker", label: "DOCKER" },
-  { id: "files", label: "FILES" },
-  { id: "build", label: "BUILD" },
-  { id: "ssh", label: "SSH" },
-];
+const SCENARIO_TABS: { id: ScenarioId; label: string }[] = Object.values(scenarios).map(s => ({
+  id: s.id,
+  label: s.title.toUpperCase(),
+}));
 
 export function mountPreview(container: HTMLElement): () => void {
   container.innerHTML = `
