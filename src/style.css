@@ -1490,3 +1490,81 @@ body::before {
     white-space: nowrap;
     width: 60px;
 }
+
+/* === Responsive / Mobile === */
+@media (max-width: 768px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+
+    .header-inner {
+        padding: 16px 16px 12px;
+    }
+
+    .palette-strip-wrapper {
+        padding: 0 16px 12px;
+    }
+
+    .palette-search-area {
+        padding: 0 16px 8px;
+    }
+
+    .search-wrapper {
+        max-width: 100%;
+    }
+
+    .preview-wrapper {
+        padding: 16px;
+    }
+
+    .right-panel {
+        padding: 16px;
+    }
+
+    .terminal-window {
+        max-height: 22rem;
+        min-height: 16rem;
+    }
+
+    .comparison-wrapper {
+        max-height: 22rem;
+    }
+
+    /* Scenario tabs scroll horizontally instead of wrapping */
+    .scenario-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .scenario-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Let speed controls sit on a new line if tabs take full width */
+    .preview-controls {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .speed-controls {
+        margin-left: auto;
+    }
+
+    .modal-dialog {
+        min-width: 0;
+        width: calc(100vw - 32px);
+    }
+}
+
+@media (max-width: 480px) {
+    .terminal-window,
+    .comparison-wrapper {
+        max-height: 18rem;
+        min-height: 14rem;
+    }
+
+    .terminal-output {
+        font-size: 11px;
+    }
+}
